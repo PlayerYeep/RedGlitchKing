@@ -80,6 +80,9 @@ end
 
 showTab(page1)
 
+------------------------------------------------------
+-- FLY
+------------------------------------------------------
 local flying = false
 local bv, bg
 
@@ -118,6 +121,9 @@ game:GetService("RunService").Heartbeat:Connect(function()
     end
 end)
 
+------------------------------------------------------
+-- SKYBOX
+------------------------------------------------------
 local skyboxButton = Instance.new("TextButton")
 skyboxButton.Size = UDim2.new(0, 200, 0, 40)
 skyboxButton.Position = UDim2.new(0, 50, 0, 20)
@@ -139,6 +145,9 @@ skyboxButton.MouseButton1Click:Connect(function()
     sky.Parent = game.Lighting
 end)
 
+------------------------------------------------------
+-- FLING YOURSELF
+------------------------------------------------------
 local flingButton = Instance.new("TextButton")
 flingButton.Size = UDim2.new(0, 200, 0, 40)
 flingButton.Position = UDim2.new(0, 50, 0, 20)
@@ -153,12 +162,55 @@ flingButton.MouseButton1Click:Connect(function()
     root.Velocity = Vector3.new(0, 200, 0)
 end)
 
-page1Btn.MouseButton1Click:Connect(function()
-    showTab(page1)
+------------------------------------------------------
+-- NOCLIP (ADDED)
+------------------------------------------------------
+local noclip = false
+local parts = {}
+
+local function updateParts()
+    parts = {}
+    local char = player.Character
+    if not char then return end
+    for _, v in pairs(char:GetChildren()) do
+        if v:IsA("BasePart") then
+            table.insert(parts, v)
+        end
+    end
+end
+
+updateParts()
+player.CharacterAdded:Connect(updateParts)
+
+local noclipButton = Instance.new("TextButton")
+noclipButton.Size = UDim2.new(0,200,0,40)
+noclipButton.Position = UDim2.new(0,50,0,70)
+noclipButton.Text = "Toggle Noclip"
+noclipButton.BackgroundColor3 = Color3.fromRGB(140,0,0)
+noclipButton.TextColor3 = Color3.fromRGB(255,255,255)
+noclipButton.Font = Enum.Font.Code
+noclipButton.TextSize = 22
+noclipButton.Parent = page3
+
+noclipButton.MouseButton1Click:Connect(function()
+    noclip = not noclip
 end)
-page2Btn.MouseButton1Click:Connect(function()
-    showTab(page2)
+
+game:GetService("RunService").Stepped:Connect(function()
+    if noclip then
+        for _, part in ipairs(parts) do
+            part.CanCollide = false
+        end
+    else
+        for _, part in ipairs(parts) do
+            part.CanCollide = true
+        end
+    end
 end)
-page3Btn.MouseButton1Click:Connect(function()
-    showTab(page3)
-end)
+
+------------------------------------------------------
+-- TAB SWITCHING
+------------------------------------------------------
+page1Btn.MouseButton1Click:Connect(function() showTab(page1) end)
+page2Btn.MouseButton1Click:Connect(function() showTab(page2) end)
+page3Btn.MouseButton1Click:Connect(function() showTab(page3) end)
