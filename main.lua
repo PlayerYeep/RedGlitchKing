@@ -209,6 +209,44 @@ game:GetService("RunService").Stepped:Connect(function()
 end)
 
 ------------------------------------------------------
+-- Kill All (ADDED)
+------------------------------------------------------
+local killall = false
+local parts = {}
+
+local function updateParts()
+    parts = {}
+    local char = player.Character
+    if not char then return end
+    for _, v in pairs(char:GetChildren()) do
+        if v:IsA("BasePart") then
+            table.insert(parts, v)
+        end
+    end
+end
+
+updateParts()
+player.CharacterAdded:Connect(updateParts)
+
+local killallButton = Instance.new("TextButton")
+killallButton.Size = UDim2.new(0,200,0,40)
+killallButton.Position = UDim2.new(0,50,0,80)
+killallButton.Text = "Kill All"
+killallButton.BackgroundColor3 = Color3.fromRGB(140,0,0)
+killallButton.TextColor3 = Color3.fromRGB(255,255,255)
+killallButton.Font = Enum.Font.Code
+killallButton.TextSize = 22
+killallButton.Parent = page3
+
+killallButton.MouseButton1Click:Connect(function()
+    for _, player in pairs(game.Players:GetPlayers()) do
+     if player.Character and player.Character:FindFirstChild("Humanoid") then
+      player.Character.Humanoid.Health = 0
+     end
+    end
+end)
+
+------------------------------------------------------
 -- TAB SWITCHING
 ------------------------------------------------------
 page1Btn.MouseButton1Click:Connect(function() showTab(page1) end)
