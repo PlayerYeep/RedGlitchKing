@@ -230,7 +230,7 @@ player.CharacterAdded:Connect(updateParts)
 
 local killallButton = Instance.new("TextButton")
 killallButton.Size = UDim2.new(0,200,0,40)
-killallButton.Position = UDim2.new(0,50,0,90)
+killallButton.Position = UDim2.new(0,50,0,120)
 killallButton.Text = "Kill All"
 killallButton.BackgroundColor3 = Color3.fromRGB(140,0,0)
 killallButton.TextColor3 = Color3.fromRGB(255,255,255)
