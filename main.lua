@@ -130,12 +130,12 @@ skyboxButton.Parent = page2
 
 skyboxButton.MouseButton1Click:Connect(function()
     local sky = Instance.new("Sky")
-    sky.SkyboxBk = "rbxassetid://127134414593988"
-    sky.SkyboxDn = "rbxassetid://127134414593988"
-    sky.SkyboxFt = "rbxassetid://127134414593988"
-    sky.SkyboxLf = "rbxassetid://127134414593988"
-    sky.SkyboxRt = "rbxassetid://127134414593988"
-    sky.SkyboxUp = "rbxassetid://127134414593988"
+    sky.SkyboxBk = "rbxassetid://116838267742664"
+    sky.SkyboxDn = "rbxassetid://116838267742664"
+    sky.SkyboxFt = "rbxassetid://116838267742664"
+    sky.SkyboxLf = "rbxassetid://116838267742664"
+    sky.SkyboxRt = "rbxassetid://116838267742664"
+    sky.SkyboxUp = "rbxassetid://116838267742664"
     sky.Parent = game.Lighting
 end)
 
