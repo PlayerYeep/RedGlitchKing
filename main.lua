@@ -1,217 +1,216 @@
-----------------------------------------------------------
--- SETUP
-----------------------------------------------------------
 local player = game.Players.LocalPlayer
-local UIS = game:GetService("UserInputService")
-local Run = game:GetService("RunService")
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+local root = character:WaitForChild("HumanoidRootPart")
 
-local function getChar()
-	local c = player.Character or player.CharacterAdded:Wait()
-	local h = c:WaitForChild("Humanoid")
-	local r = c:WaitForChild("HumanoidRootPart")
-	return c,h,r
-end
-
-local character, humanoid, root = getChar()
-player.CharacterAdded:Connect(function()
-	character,humanoid,root = getChar()
-end)
-
-----------------------------------------------------------
--- GUI
-----------------------------------------------------------
 local gui = Instance.new("ScreenGui")
+gui.Name = "RedGlitchKingUI"
+gui.ResetOnSpawn = false
 gui.Parent = player:WaitForChild("PlayerGui")
 
 local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0,400,0,420)
-frame.Position = UDim2.new(0.5,-200,0.5,-210)
-frame.BackgroundColor3 = Color3.fromRGB(30,0,0)
+frame.Size = UDim2.new(0, 350, 0, 250)
+frame.Position = UDim2.new(0.5, -175, 0.5, -125)
+frame.BackgroundColor3 = Color3.fromRGB(30, 0, 0)
+frame.BorderSizePixel = 0
 frame.Active = true
 frame.Draggable = true
 frame.Parent = gui
 
+local stroke = Instance.new("UIStroke")
+stroke.Thickness = 3
+stroke.Color = Color3.fromRGB(255, 0, 0)
+stroke.Parent = frame
+
 local title = Instance.new("TextLabel")
-title.Size = UDim2.new(1,0,0,30)
-title.Text = "Red Glitch King"
-title.BackgroundTransparency = 1
-title.TextColor3 = Color3.new(1,0,0)
+title.Size = UDim2.new(1, 0, 0, 30)
+title.Text = "Red Glitch King UI"
+title.BackgroundColor3 = Color3.fromRGB(60, 0, 0)
+title.TextColor3 = Color3.fromRGB(255, 0, 0)
 title.Font = Enum.Font.Code
 title.TextSize = 22
 title.Parent = frame
 
-----------------------------------------------------------
--- HELPER BUTTON
-----------------------------------------------------------
-local nextY = 40
+local tabBar = Instance.new("Frame")
+tabBar.Size = UDim2.new(1, 0, 0, 30)
+tabBar.Position = UDim2.new(0, 0, 0, 30)
+tabBar.BackgroundColor3 = Color3.fromRGB(40, 0, 0)
+tabBar.Parent = frame
 
-local function makeButton(text, func)
-	local b = Instance.new("TextButton")
-	b.Size = UDim2.new(0,300,0,40)
-	b.Position = UDim2.new(0,50,0,nextY)
-	nextY += 50
-	b.Text = text
-	b.BackgroundColor3 = Color3.fromRGB(140,0,0)
-	b.TextColor3 = Color3.new(1,1,1)
-	b.Font = Enum.Font.Code
-	b.TextSize = 20
-	b.Parent = frame
-	if func then b.MouseButton1Click:Connect(func) end
-	return b
+local UIList = Instance.new("UIListLayout")
+UIList.FillDirection = Enum.FillDirection.Horizontal
+UIList.Parent = tabBar
+
+local function createTabButton(text)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0, 100, 1, 0)
+    btn.BackgroundColor3 = Color3.fromRGB(80, 0, 0)
+    btn.TextColor3 = Color3.fromRGB(255, 0, 0)
+    btn.Font = Enum.Font.Code
+    btn.TextSize = 20
+    btn.Text = text
+    btn.Parent = tabBar
+    return btn
 end
 
-----------------------------------------------------------
--- MOVEMENT FEATURES
-----------------------------------------------------------
+local page1Btn = createTabButton("Page 1")
+local page2Btn = createTabButton("Page 2")
+local page3Btn = createTabButton("Page 3")
 
--- Fly
+local function createTabContent()
+    local tab = Instance.new("Frame")
+    tab.Size = UDim2.new(1, -10, 1, -70)
+    tab.Position = UDim2.new(0, 5, 0, 65)
+    tab.BackgroundTransparency = 1
+    tab.Visible = false
+    tab.Parent = frame
+    return tab
+end
+
+local page1 = createTabContent()
+local page2 = createTabContent()
+local page3 = createTabContent()
+
+local function showTab(tab)
+    page1.Visible = false
+    page2.Visible = false
+    page3.Visible = false
+    tab.Visible = true
+end
+
+showTab(page1)
+
+------------------------------------------------------
+-- FLY
+------------------------------------------------------
 local flying = false
-local bv,bg
+local bv, bg
 
-makeButton("Toggle Fly", function()
-	flying = not flying
-	if flying then
-		bv = Instance.new("BodyVelocity")
-		bv.MaxForce = Vector3.new(1e5,1e5,1e5)
-		bv.Parent = root
-		bg = Instance.new("BodyGyro")
-		bg.MaxTorque = Vector3.new(1e5,1e5,1e5)
-		bg.Parent = root
-	else
-		if bv then bv:Destroy() end
-		if bg then bg:Destroy() end
-	end
+local flyButton = Instance.new("TextButton")
+flyButton.Size = UDim2.new(0, 200, 0, 40)
+flyButton.Position = UDim2.new(0, 50, 0, 20)
+flyButton.Text = "Toggle Fly"
+flyButton.BackgroundColor3 = Color3.fromRGB(140, 0, 0)
+flyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+flyButton.Font = Enum.Font.Code
+flyButton.TextSize = 22
+flyButton.Parent = page1
+
+flyButton.MouseButton1Click:Connect(function()
+    flying = not flying
+
+    if flying then
+        bv = Instance.new("BodyVelocity")
+        bv.MaxForce = Vector3.new(1e5, 1e5, 1e5)
+        bv.Parent = root
+
+        bg = Instance.new("BodyGyro")
+        bg.MaxTorque = Vector3.new(1e5, 1e5, 1e5)
+        bg.Parent = root
+    else
+        if bv then bv:Destroy() end
+        if bg then bg:Destroy() end
+    end
 end)
 
-Run.Heartbeat:Connect(function()
-	if flying and bv then
-		local c = workspace.CurrentCamera.CFrame
-		bv.Velocity = c.LookVector * 50
-		bg.CFrame = c
-	end
+game:GetService("RunService").Heartbeat:Connect(function()
+    if flying and bv then
+        local cam = workspace.CurrentCamera.CFrame
+        bv.Velocity = cam.LookVector * 50
+        bg.CFrame = cam
+    end
 end)
 
--- Noclip
+------------------------------------------------------
+-- SKYBOX
+------------------------------------------------------
+local skyboxButton = Instance.new("TextButton")
+skyboxButton.Size = UDim2.new(0, 200, 0, 40)
+skyboxButton.Position = UDim2.new(0, 50, 0, 20)
+skyboxButton.Text = "Change Skybox"
+skyboxButton.BackgroundColor3 = Color3.fromRGB(140, 0, 0)
+skyboxButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+skyboxButton.Font = Enum.Font.Code
+skyboxButton.TextSize = 22
+skyboxButton.Parent = page2
+
+skyboxButton.MouseButton1Click:Connect(function()
+    local sky = Instance.new("Sky")
+    sky.SkyboxBk = "rbxassetid://116838267742664"
+    sky.SkyboxDn = "rbxassetid://116838267742664"
+    sky.SkyboxFt = "rbxassetid://116838267742664"
+    sky.SkyboxLf = "rbxassetid://116838267742664"
+    sky.SkyboxRt = "rbxassetid://116838267742664"
+    sky.SkyboxUp = "rbxassetid://116838267742664"
+    sky.Parent = game.Lighting
+end)
+
+------------------------------------------------------
+-- FLING YOURSELF
+------------------------------------------------------
+local flingButton = Instance.new("TextButton")
+flingButton.Size = UDim2.new(0, 200, 0, 40)
+flingButton.Position = UDim2.new(0, 50, 0, 20)
+flingButton.Text = "Fling Yourself"
+flingButton.BackgroundColor3 = Color3.fromRGB(140, 0, 0)
+flingButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+flingButton.Font = Enum.Font.Code
+flingButton.TextSize = 22
+flingButton.Parent = page3
+
+flingButton.MouseButton1Click:Connect(function()
+    root.Velocity = Vector3.new(0, 200, 0)
+end)
+
+------------------------------------------------------
+-- NOCLIP (ADDED)
+------------------------------------------------------
 local noclip = false
 local parts = {}
 
-local function refresh()
-	parts = {}
-	if not player.Character then return end
-	for _,p in ipairs(player.Character:GetChildren()) do
-		if p:IsA("BasePart") and p.Name ~= "HumanoidRootPart" then
-			table.insert(parts,p)
-		end
-	end
-end
-refresh()
-player.CharacterAdded:Connect(refresh)
-
-makeButton("Toggle Noclip", function()
-	noclip = not noclip
-end)
-
-Run.Stepped:Connect(function()
-	for _,p in ipairs(parts) do
-		p.CanCollide = not noclip
-	end
-	if humanoid then
-		humanoid.RootPart.CanCollide = true
-	end
-end)
-
--- Infinite Jump
-UIS.JumpRequest:Connect(function()
-	if humanoid then
-		humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-	end
-end)
-
--- Fling
-makeButton("Fling Yourself", function()
-	if root then
-		root.Velocity = Vector3.new(0,250,0)
-	end
-end)
-
-----------------------------------------------------------
--- EFFECTS
-----------------------------------------------------------
-
-makeButton("Change Skybox", function()
-	local s = Instance.new("Sky")
-	local id = "rbxassetid://116838267742664"
-	s.SkyboxBk=s.SkyboxDn=s.SkyboxFt=s.SkyboxLf=s.SkyboxRt=s.SkyboxUp=id
-	s.Parent = game.Lighting
-end)
-
-local god = false
-makeButton("Toggle Godmode", function()
-	god = not god
-end)
-
-humanoid.HealthChanged:Connect(function()
-	if god then
-		humanoid.Health = humanoid.MaxHealth
-	end
-end)
-
-----------------------------------------------------------
--- SLIDERS
-----------------------------------------------------------
-
-local function slider(name,min,max,def,x,y,callback)
-
-	local label = Instance.new("TextLabel")
-	label.Parent = frame
-	label.Position = UDim2.new(0,50,0,nextY)
-	label.Size = UDim2.new(0,300,0,20)
-	label.Text = name
-	label.TextColor3 = Color3.new(1,1,1)
-
-	nextY += 25
-
-	local bg = Instance.new("Frame")
-	bg.Parent = frame
-	bg.Size = UDim2.new(0,300,0,20)
-	bg.Position = UDim2.new(0,50,0,nextY)
-	bg.BackgroundColor3 = Color3.fromRGB(80,0,0)
-
-	local knob = Instance.new("Frame")
-	knob.Parent = bg
-	knob.Size = UDim2.new(0,20,1,0)
-	knob.BackgroundColor3 = Color3.new(1,1,1)
-
-	local drag = false
-
-	knob.InputBegan:Connect(function(i)
-		if i.UserInputType == Enum.UserInputType.MouseButton1 then
-			drag = true
-		end
-	end)
-	knob.InputEnded:Connect(function()
-		drag = false
-	end)
-
-	UIS.InputChanged:Connect(function(i)
-		if drag then
-			local pos = math.clamp((i.Position.X - bg.AbsolutePosition.X)/bg.AbsoluteSize.X,0,1)
-			knob.Position = UDim2.new(pos,-10,0,0)
-			callback(min + (max-min)*pos)
-		end
-	end)
-
-	callback(def)
-
-	nextY += 40
+local function updateParts()
+    parts = {}
+    local char = player.Character
+    if not char then return end
+    for _, v in pairs(char:GetChildren()) do
+        if v:IsA("BasePart") then
+            table.insert(parts, v)
+        end
+    end
 end
 
-slider("WalkSpeed",16,200,50,0,0,function(v)
-	if humanoid then humanoid.WalkSpeed = v end
+updateParts()
+player.CharacterAdded:Connect(updateParts)
+
+local noclipButton = Instance.new("TextButton")
+noclipButton.Size = UDim2.new(0,200,0,40)
+noclipButton.Position = UDim2.new(0,50,0,70)
+noclipButton.Text = "Toggle Noclip"
+noclipButton.BackgroundColor3 = Color3.fromRGB(140,0,0)
+noclipButton.TextColor3 = Color3.fromRGB(255,255,255)
+noclipButton.Font = Enum.Font.Code
+noclipButton.TextSize = 22
+noclipButton.Parent = page3
+
+noclipButton.MouseButton1Click:Connect(function()
+    noclip = not noclip
 end)
 
-slider("JumpPower",50,400,150,0,0,function(v)
-	if humanoid then humanoid.JumpPower = v end
+game:GetService("RunService").Stepped:Connect(function()
+    if noclip then
+        for _, part in ipairs(parts) do
+            part.CanCollide = false
+        end
+    else
+        for _, part in ipairs(parts) do
+            part.CanCollide = true
+        end
+    end
 end)
 
-print("Red Glitch King Loaded!")
+------------------------------------------------------
+-- TAB SWITCHING
+------------------------------------------------------
+page1Btn.MouseButton1Click:Connect(function() showTab(page1) end)
+page2Btn.MouseButton1Click:Connect(function() showTab(page2) end)
+page3Btn.MouseButton1Click:Connect(function() showTab(page3) end)
