@@ -360,7 +360,7 @@ decalspamButton.MouseButton1Click:Connect(function()
      if x:IsA("Model") then
       for i,z in pairs (x:GetChildren()) do
       if z:IsA("Part") then
-       local particle2 - Instance.new("ParticleEmitter")
+       local particle2 = Instance.new("ParticleEmitter")
     particle2.Texture = "rbxassetid://" ..ID
     particle2.Parent = z
     particle2.Rate = 200
