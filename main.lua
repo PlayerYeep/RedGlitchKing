@@ -24,8 +24,8 @@ local gui = Instance.new("ScreenGui")
 gui.Parent = player:WaitForChild("PlayerGui")
 
 local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0,350,0,250)
-frame.Position = UDim2.new(0.5,-175,0.5,-125)
+frame.Size = UDim2.new(0,350,0,300)
+frame.Position = UDim2.new(0.5,-175,0.5,-150)
 frame.BackgroundColor3 = Color3.fromRGB(30,0,0)
 frame.Active = true
 frame.Draggable = true
@@ -96,13 +96,8 @@ page2Btn.MouseButton1Click:Connect(function()show(page2) end)
 page3Btn.MouseButton1Click:Connect(function()show(page3) end)
 
 ----------------------------------------------------------
--- MOVEMENT PAGE
+-- HELPER FUNCTION FOR BUTTONS
 ----------------------------------------------------------
-
--- FLY
-local flying = false
-local bv, bg
-
 local function makeButton(parent,text,y,func)
 	local b = Instance.new("TextButton")
 	b.Size = UDim2.new(0,200,0,40)
@@ -116,6 +111,13 @@ local function makeButton(parent,text,y,func)
 	if func then b.MouseButton1Click:Connect(func) end
 	return b
 end
+
+----------------------------------------------------------
+-- PAGE 1: MOVEMENT
+----------------------------------------------------------
+-- Fly
+local flying = false
+local bv,bg
 
 makeButton(page1,"Toggle Fly",20,function()
 	flying = not flying
@@ -140,55 +142,52 @@ Run.Heartbeat:Connect(function()
 	end
 end)
 
--- NOCLIP
+-- Noclip
 local noclip = false
 local parts = {}
 
-local function refresh()
+local function refreshParts()
 	parts = {}
 	if not player.Character then return end
-	for _,v in ipairs(player.Character:GetChildren()) do
-		if v:IsA("BasePart") then
-			table.insert(parts,v)
+	for _, part in ipairs(player.Character:GetChildren()) do
+		if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
+			table.insert(parts, part)
 		end
 	end
 end
-refresh()
-player.CharacterAdded:Connect(refresh)
+refreshParts()
+player.CharacterAdded:Connect(refreshParts)
 
-makeButton(page1,"Toggle Noclip",70,function()
+local noclipBtn = makeButton(page1,"Toggle Noclip",70,function()
 	noclip = not noclip
 end)
 
 Run.Stepped:Connect(function()
-	if noclip then
-		for _,p in ipairs(parts) do
-			p.CanCollide = false
-		end
-	else
-		for _,p in ipairs(parts) do
-			p.CanCollide = true
-		end
+	if not player.Character then return end
+	for _,p in ipairs(parts) do
+		p.CanCollide = not noclip
+	end
+	if player.Character:FindFirstChild("HumanoidRootPart") then
+		player.Character.HumanoidRootPart.CanCollide = true
 	end
 end)
 
--- INFINITE JUMP
+-- Infinite Jump
 UIS.JumpRequest:Connect(function()
 	if humanoid then
 		humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
 	end
 end)
 
--- SELF FLING
+-- Self Fling
 makeButton(page1,"Fling Yourself",120,function()
 	root.Velocity = Vector3.new(0,250,0)
 end)
 
 ----------------------------------------------------------
--- EFFECTS PAGE
+-- PAGE 2: EFFECTS
 ----------------------------------------------------------
-
--- SKYBOX
+-- Skybox
 makeButton(page2,"Change Skybox",20,function()
 	local s = Instance.new("Sky")
 	local id = "rbxassetid://116838267742664"
@@ -196,7 +195,7 @@ makeButton(page2,"Change Skybox",20,function()
 	s.Parent = game.Lighting
 end)
 
--- GODMODE
+-- Godmode
 local god = false
 makeButton(page2,"Toggle Godmode",70,function()
 	god = not god
@@ -209,9 +208,8 @@ humanoid.HealthChanged:Connect(function()
 end)
 
 ----------------------------------------------------------
--- SLIDERS PAGE
+-- PAGE 3: SLIDERS
 ----------------------------------------------------------
-
 local function slider(name,min,max,def,x,y,callback)
 	local bg = Instance.new("Frame")
 	bg.Size = UDim2.new(0,200,0,20)
@@ -244,12 +242,12 @@ local function slider(name,min,max,def,x,y,callback)
 	callback(def)
 end
 
-slider("Speed",16,200,50,50,20,function(v)
+slider("WalkSpeed",16,200,50,50,20,function(v)
 	humanoid.WalkSpeed = v
 end)
 
-slider("Jump",50,400,150,50,70,function(v)
+slider("JumpPower",50,400,150,50,70,function(v)
 	humanoid.JumpPower = v
 end)
 
-print("UI Loaded!")
+print("Red Glitch King UI Loaded!")
