@@ -247,26 +247,11 @@ killallButton.MouseButton1Click:Connect(function()
 end)
 
 ------------------------------------------------------
--- Decal Spam (ADDED)
+-- Decal Spam (FIXED)
 ------------------------------------------------------
 local ID = 116838267742664
-local parts = {}
 local Skybox = true
 local particle = true
-
-local function updateParts()
-    parts = {}
-    local char = player.Character
-    if not char then return end
-    for _, v in pairs(char:GetChildren()) do
-        if v:IsA("BasePart") then
-            table.insert(parts, v)
-        end
-    end
-end
-
-updateParts()
-player.CharacterAdded:Connect(updateParts)
 
 local decalspamButton = Instance.new("TextButton")
 decalspamButton.Size = UDim2.new(0,200,0,40)
@@ -280,93 +265,61 @@ decalspamButton.Parent = page2
 
 decalspamButton.MouseButton1Click:Connect(function()
     for i,v in pairs (game.Workspace:GetChildren()) do
-     if v:IsA("Part") then
-      local decal1 =Instance.new("Decal")
-      local decal2 =Instance.new("Decal")
-      local decal3 =Instance.new("Decal")
-      local decal4 =Instance.new("Decal")
-      local decal5 =Instance.new("Decal")
-      local decal6 =Instance.new("Decal")
-      decal1.Texture = "rbxassetid://" ..ID
-      decal2.Texture = "rbxassetid://" ..ID
-      decal3.Texture = "rbxassetid://" ..ID
-      decal4.Texture = "rbxassetid://" ..ID
-      decal5.Texture = "rbxassetid://" ..ID
-      decal6.Texture = "rbxassetid://" ..ID
-      decal1.Parent = v
-      decal2.Parent = v
-      decal3.Parent = v
-      decal4.Parent = v
-      decal5.Parent = v
-      decal6.Parent = v
-      decal1.Face = "Front"
-      decal2.Face = "Top"
-      decal3.Face = "Left"
-      decal4.Face = "Right"
-      decal5.Face = "Bottom"
-      decal6.Face = "Back"
-     end
-     end
-      for i,v in pairs (game.Workspace:GetChildren()) do
-      if v:IsA("Model") then
-      for i,z in pairs (v:GetChildren()) do
-      if z:IsA("Part") then
-       local decal7 =Instance.new("Decal")
-      local decal8 =Instance.new("Decal")
-      local decal9 =Instance.new("Decal")
-      local decal10 =Instance.new("Decal")
-      local decal11 =Instance.new("Decal")
-      local decal12 =Instance.new("Decal")
-      decal7.Texture = "rbxassetid://" ..ID
-      decal8.Texture = "rbxassetid://" ..ID
-      decal9.Texture = "rbxassetid://" ..ID
-      decal10.Texture = "rbxassetid://" ..ID
-      decal11.Texture = "rbxassetid://" ..ID
-      decal12.Texture = "rbxassetid://" ..ID
-      decal7.Parent = z
-      decal8.Parent = z
-      decal9.Parent = z
-      decal10.Parent = z
-      decal11.Parent = z
-      decal12.Parent = z
-      decal7.Face = "Front"
-      decal8.Face = "Top"
-      decal9.Face = "Left"
-      decal10.Face = "Right"
-      decal11.Face = "Bottom"
-      decal12.Face = "Back"
-      end
-      end
-      end
-      end
-    if Skybox == true then
-    local sky = Instance.new("Sky")
-    sky.Parent = game.Lighting
-    sky.SkyboxBk = "rbxassetid://" ..ID
-    sky.SkyboxDn = "rbxassetid://" ..ID
-    sky.SkyboxFt = "rbxassetid://" ..ID
-    sky.SkyboxLf = "rbxassetid://" ..ID
-    sky.SkyboxRt = "rbxassetid://" ..ID
-    sky.SkyboxUp = "rbxassetid://" ..ID
+        if v:IsA("Part") then
+            for _,face in ipairs(Enum.NormalId:GetEnumItems()) do
+                local decal = Instance.new("Decal")
+                decal.Texture = "rbxassetid://" .. ID
+                decal.Face = face
+                decal.Parent = v
+            end
+        end
     end
-    if particle == true then
+
     for i,v in pairs (game.Workspace:GetChildren()) do
-     if v:IsA("Part") then
-    local particle = Instance.new("ParticleEmitter")
-    particle.Texture = "rbxassetid://" ..ID
-    particle.Parent = v
-    particle.Rate = 200
-    for i,x in pairs (game.Workspace:GetChildren()) do
-     if x:IsA("Model") then
-      for i,z in pairs (x:GetChildren()) do
-      if z:IsA("Part") then
-       local particle2 = Instance.new("ParticleEmitter")
-    particle2.Texture = "rbxassetid://" ..ID
-    particle2.Parent = z
-    particle2.Rate = 200
-   end
-  end
- end
+        if v:IsA("Model") then
+            for _,z in pairs (v:GetChildren()) do
+                if z:IsA("Part") then
+                    for _,face in ipairs(Enum.NormalId:GetEnumItems()) do
+                        local decal = Instance.new("Decal")
+                        decal.Texture = "rbxassetid://" .. ID
+                        decal.Face = face
+                        decal.Parent = z
+                    end
+                end
+            end
+        end
+    end
+
+    if Skybox == true then
+        local sky = Instance.new("Sky")
+        sky.Parent = game.Lighting
+        sky.SkyboxBk = "rbxassetid://" .. ID
+        sky.SkyboxDn = "rbxassetid://" .. ID
+        sky.SkyboxFt = "rbxassetid://" .. ID
+        sky.SkyboxLf = "rbxassetid://" .. ID
+        sky.SkyboxRt = "rbxassetid://" .. ID
+        sky.SkyboxUp = "rbxassetid://" .. ID
+    end
+
+    if particle == true then
+        for i,v in pairs (game.Workspace:GetChildren()) do
+            if v:IsA("Part") then
+                local particle = Instance.new("ParticleEmitter")
+                particle.Texture = "rbxassetid://" .. ID
+                particle.Parent = v
+                particle.Rate = 200
+            elseif v:IsA("Model") then
+                for _,z in pairs (v:GetChildren()) do
+                    if z:IsA("Part") then
+                        local particle2 = Instance.new("ParticleEmitter")
+                        particle2.Texture = "rbxassetid://" .. ID
+                        particle2.Parent = z
+                        particle2.Rate = 200
+                    end
+                end
+            end
+        end
+    end
 end)
 
 ------------------------------------------------------
