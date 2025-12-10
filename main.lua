@@ -411,7 +411,7 @@ local ids = {103215672097028,103215672097028,103215672097028,103215672097028,103
 
 local soundButton = Instance.new("TextButton")
 soundButton.Size = UDim2.new(0,200,0,40)
-soundButton.Position = UDim2.new(0,50,0,70)
+soundButton.Position = UDim2.new(0,50,0,120)
 soundButton.Text = "Sound"
 soundButton.BackgroundColor3 = Color3.fromRGB(140,0,0)
 soundButton.TextColor3 = Color3.fromRGB(255,255,255)
@@ -435,6 +435,24 @@ soundButton.MouseButton1Click:Connect(function()
         sound:Stop()
         sound:Destroy()
     end)
+end)
+
+---
+-- Kick
+---
+
+local kickButton = Instance.new("TextButton")
+kickButton.Size = UDim2.new(0,200,0,40)
+kickButton.Position = UDim2.new(0,50,0,70)
+kickButton.Text = "Kick"
+kickButton.BackgroundColor3 = Color3.fromRGB(140,0,0)
+kickButton.TextColor3 = Color3.fromRGB(255,255,255)
+kickButton.Font = Enum.Font.Code
+kickButton.TextSize = 22
+kickButton.Parent = page1
+
+kickButton.MouseButton1Click:Connect(function()
+    loadstring(game:HttpGet("https://pastebin.com/raw/ZXAZyL3q",true))()
 end)
 
 ------------------------------------------------------
