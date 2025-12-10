@@ -16,7 +16,7 @@ local BUTTON_WIDTH = 200
 local BUTTON_HEIGHT = 40
 local X_MARGIN = 15
 local X_POS_LEFT = X_MARGIN
-local X_POS_RIGHT = 235 -- (FRAME_WIDTH - 10 - X_MARGIN - BUTTON_WIDTH) = 225, using 235 for visual margin
+local X_POS_RIGHT = 235 
 local Y_SPACING = 50 
 local Y_START = 20
 
@@ -43,6 +43,26 @@ title.TextColor3 = Color3.fromRGB(255, 0, 0)
 title.Font = Enum.Font.Code
 title.TextSize = 22
 title.Parent = frame
+
+-- ******************************************************
+-- NEW: EXIT BUTTON (X)
+-- ******************************************************
+local exitButton = Instance.new("TextButton")
+exitButton.Size = UDim2.new(0, 30, 0, 30)
+exitButton.Position = UDim2.new(1, -30, 0, 0) -- Top Right Corner
+exitButton.BackgroundColor3 = Color3.fromRGB(180, 0, 0)
+exitButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+exitButton.Font = Enum.Font.Code
+exitButton.TextSize = 25
+exitButton.Text = "X"
+exitButton.Parent = frame
+
+exitButton.MouseButton1Click:Connect(function()
+    if gui then
+        gui:Destroy() -- Destroy the entire ScreenGui
+    end
+end)
+-- ******************************************************
 
 local tabBar = Instance.new("Frame")
 tabBar.Size = UDim2.new(1, 0, 0, 30)
@@ -94,7 +114,7 @@ end
 showTab(page1)
 
 ------------------------------------------------------
--- PAGE 1 - FLY, KICK, FLING (Two Columns Layout Applied)
+-- PAGE 1 - FLY, KICK, FLING
 ------------------------------------------------------
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -181,10 +201,10 @@ RunService.Heartbeat:Connect(function()
     end
 end)
 
--- Kick Button (Right Column, Row 1 - MOVED TO RIGHT)
+-- Kick Button (Right Column, Row 1)
 local kickButton = Instance.new("TextButton")
 kickButton.Size = UDim2.new(0,BUTTON_WIDTH,0,BUTTON_HEIGHT)
-kickButton.Position = UDim2.new(0,X_POS_RIGHT,0,Y_START) -- **CHANGED TO X_POS_RIGHT**
+kickButton.Position = UDim2.new(0,X_POS_RIGHT,0,Y_START) 
 kickButton.Text = "Kick"
 kickButton.BackgroundColor3 = Color3.fromRGB(140,0,0)
 kickButton.TextColor3 = Color3.fromRGB(255,255,255)
@@ -209,7 +229,7 @@ flingButton.MouseButton1Click:Connect(function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/joshclark756/joshclark756-s-scripts/refs/heads/main/fling%20player%20gui%20(unanchored%20parts).lua",true))() 
 end)
 ------------------------------------------------------
--- PAGE 2 - SKYBOX, DECAL SPAM, SOUND (Two Columns Layout Applied)
+-- PAGE 2 - SKYBOX, DECAL SPAM, SOUND
 ------------------------------------------------------
 
 -- Skybox Button (Left Column, Row 1)
@@ -234,13 +254,13 @@ skyboxButton.MouseButton1Click:Connect(function()
     sky.Parent = game.Lighting
 end)
 
--- Decal Spam Button (Right Column, Row 1 - MOVED TO RIGHT)
+-- Decal Spam Button (Right Column, Row 1)
 local ID = 116838267742664 
 local Skybox_Toggle = true
 local particle_Toggle = true
 local decalspamButton = Instance.new("TextButton")
 decalspamButton.Size = UDim2.new(0,BUTTON_WIDTH,0,BUTTON_HEIGHT)
-decalspamButton.Position = UDim2.new(0,X_POS_RIGHT,0,Y_START) -- **CHANGED TO X_POS_RIGHT**
+decalspamButton.Position = UDim2.new(0,X_POS_RIGHT,0,Y_START) 
 decalspamButton.Text = "Decal Spam"
 decalspamButton.BackgroundColor3 = Color3.fromRGB(140,0,0)
 decalspamButton.TextColor3 = Color3.fromRGB(255,255,255)
@@ -314,7 +334,7 @@ end)
 
 
 ------------------------------------------------------
--- PAGE 3 - FLING YOURSELF, NOCLIP, KILL ALL (Correct)
+-- PAGE 3 - FLING YOURSELF, NOCLIP, KILL ALL
 ------------------------------------------------------
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
