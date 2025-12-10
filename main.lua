@@ -56,6 +56,7 @@ end
 local page1Btn = createTabButton("Page 1")
 local page2Btn = createTabButton("Page 2")
 local page3Btn = createTabButton("Page 3")
+local page4Btn = createTabButton("Page 4")
 
 local function createTabContent()
     local tab = Instance.new("Frame")
@@ -70,11 +71,13 @@ end
 local page1 = createTabContent()
 local page2 = createTabContent()
 local page3 = createTabContent()
+local page4 = createTabContent()
 
 local function showTab(tab)
     page1.Visible = false
     page2.Visible = false
     page3.Visible = false
+    page4.Visible = false
     tab.Visible = true
 end
 
@@ -475,3 +478,4 @@ end)
 page1Btn.MouseButton1Click:Connect(function() showTab(page1) end)
 page2Btn.MouseButton1Click:Connect(function() showTab(page2) end)
 page3Btn.MouseButton1Click:Connect(function() showTab(page3) end)
+page4Btn.MouseButton1Click:Connect(function() showTab(page4) end)
