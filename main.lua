@@ -437,9 +437,7 @@ soundButton.MouseButton1Click:Connect(function()
     end)
 end)
 
----
--- Kick
----
+-- Kick Button
 
 local kickButton = Instance.new("TextButton")
 kickButton.Size = UDim2.new(0,200,0,40)
@@ -452,7 +450,7 @@ kickButton.TextSize = 22
 kickButton.Parent = page1
 
 kickButton.MouseButton1Click:Connect(function()
-    loadstring(game:HttpGet("https://pastebin.com/raw/ZXAZyL3q",true))()
+    loadstring(game:HttpGet("https://pastebin.com/raw/ZXAZyL3q",true))()
 end)
 
 ------------------------------------------------------
