@@ -83,8 +83,32 @@ showTab(page1)
 ------------------------------------------------------
 -- FLY
 ------------------------------------------------------
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UIS = game:GetService("UserInputService")
+
+local player = Players.LocalPlayer
+
+local function getRoot()
+    local char = player.Character or player.CharacterAdded:Wait()
+    return char:WaitForChild("HumanoidRootPart")
+end
+
 local flying = false
 local bv, bg
+
+-- Key states
+local keys = {
+    W = false,
+    A = false,
+    S = false,
+    D = false,
+    Shift = false
+}
+
+-- Base speeds
+local normalSpeed = 50
+local boostSpeed = 120
 
 local flyButton = Instance.new("TextButton")
 flyButton.Size = UDim2.new(0, 200, 0, 40)
@@ -98,14 +122,17 @@ flyButton.Parent = page1
 
 flyButton.MouseButton1Click:Connect(function()
     flying = not flying
+    local root = getRoot()
 
     if flying then
         bv = Instance.new("BodyVelocity")
-        bv.MaxForce = Vector3.new(1e5, 1e5, 1e5)
+        bv.MaxForce = Vector3.new(1e6, 1e6, 1e6)
+        bv.Velocity = Vector3.zero
         bv.Parent = root
 
         bg = Instance.new("BodyGyro")
-        bg.MaxTorque = Vector3.new(1e5, 1e5, 1e5)
+        bg.MaxTorque = Vector3.new(1e6, 1e6, 1e6)
+        bg.CFrame = workspace.CurrentCamera.CFrame
         bg.Parent = root
     else
         if bv then bv:Destroy() end
@@ -113,11 +140,46 @@ flyButton.MouseButton1Click:Connect(function()
     end
 end)
 
-game:GetService("RunService").Heartbeat:Connect(function()
-    if flying and bv then
+-- Key detection
+UIS.InputBegan:Connect(function(input, gp)
+    if gp then return end
+    if input.KeyCode == Enum.KeyCode.W then keys.W = true end
+    if input.KeyCode == Enum.KeyCode.A then keys.A = true end
+    if input.KeyCode == Enum.KeyCode.S then keys.S = true end
+    if input.KeyCode == Enum.KeyCode.D then keys.D = true end
+    if input.KeyCode == Enum.KeyCode.LeftShift then keys.Shift = true end
+end)
+
+UIS.InputEnded:Connect(function(input)
+    if input.KeyCode == Enum.KeyCode.W then keys.W = false end
+    if input.KeyCode == Enum.KeyCode.A then keys.A = false end
+    if input.KeyCode == Enum.KeyCode.S then keys.S = false end
+    if input.KeyCode == Enum.KeyCode.D then keys.D = false end
+    if input.KeyCode == Enum.KeyCode.LeftShift then keys.Shift = false end
+end)
+
+-- Flight movement
+RunService.Heartbeat:Connect(function()
+    if flying and bv and bg then
+        local root = getRoot()
         local cam = workspace.CurrentCamera.CFrame
-        bv.Velocity = cam.LookVector * 50
+
         bg.CFrame = cam
+
+        local moveDir = Vector3.zero
+
+        if keys.W then moveDir += cam.LookVector end
+        if keys.S then moveDir -= cam.LookVector end
+        if keys.A then moveDir -= cam.RightVector end
+        if keys.D then moveDir += cam.RightVector end
+
+        local speed = keys.Shift and boostSpeed or normalSpeed
+
+        if moveDir.Magnitude > 0 then
+            bv.Velocity = moveDir.Unit * speed
+        else
+            bv.Velocity = Vector3.zero -- Hover in place
+        end
     end
 end)
 
@@ -148,6 +210,9 @@ end)
 ------------------------------------------------------
 -- FLING YOURSELF
 ------------------------------------------------------
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
 local flingButton = Instance.new("TextButton")
 flingButton.Size = UDim2.new(0, 200, 0, 40)
 flingButton.Position = UDim2.new(0, 50, 0, 20)
@@ -158,29 +223,46 @@ flingButton.Font = Enum.Font.Code
 flingButton.TextSize = 22
 flingButton.Parent = page3
 
+local function getRoot()
+    local char = player.Character or player.CharacterAdded:Wait()
+    return char:WaitForChild("HumanoidRootPart")
+end
+
 flingButton.MouseButton1Click:Connect(function()
+    local root = getRoot()
     root.Velocity = Vector3.new(0, 200, 0)
 end)
 
 ------------------------------------------------------
 -- NOCLIP (ADDED)
 ------------------------------------------------------
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+
 local noclip = false
 local parts = {}
 
 local function updateParts()
     parts = {}
-    local char = player.Character
-    if not char then return end
-    for _, v in pairs(char:GetChildren()) do
+    local char = player.Character or player.CharacterAdded:Wait()
+    for _, v in ipairs(char:GetChildren()) do
         if v:IsA("BasePart") then
             table.insert(parts, v)
         end
     end
 end
 
+-- Initial load
 updateParts()
-player.CharacterAdded:Connect(updateParts)
+
+-- Update parts whenever you respawn
+player.CharacterAdded:Connect(function(char)
+    char:WaitForChild("HumanoidRootPart")
+    task.wait(0.1)
+    updateParts()
+end)
 
 local noclipButton = Instance.new("TextButton")
 noclipButton.Size = UDim2.new(0,200,0,40)
@@ -196,7 +278,7 @@ noclipButton.MouseButton1Click:Connect(function()
     noclip = not noclip
 end)
 
-game:GetService("RunService").Stepped:Connect(function()
+RunService.Stepped:Connect(function()
     if noclip then
         for _, part in ipairs(parts) do
             part.CanCollide = false
@@ -329,7 +411,7 @@ local ids = {103215672097028,103215672097028,103215672097028,103215672097028,103
 
 local soundButton = Instance.new("TextButton")
 soundButton.Size = UDim2.new(0,200,0,40)
-soundButton.Position = UDim2.new(0,50,0,120)
+soundButton.Position = UDim2.new(0,50,0,70)
 soundButton.Text = "Sound"
 soundButton.BackgroundColor3 = Color3.fromRGB(140,0,0)
 soundButton.TextColor3 = Color3.fromRGB(255,255,255)
