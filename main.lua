@@ -453,6 +453,22 @@ kickButton.MouseButton1Click:Connect(function()
     loadstring(game:HttpGet("https://pastebin.com/raw/ZXAZyL3q",true))()
 end)
 
+-- Fling Button
+
+local flingButton = Instance.new("TextButton")
+flingButton.Size = UDim2.new(0,200,0,40)
+flingButton.Position = UDim2.new(0,50,0,120)
+flingButton.Text = "Fling"
+flingButton.BackgroundColor3 = Color3.fromRGB(140,0,0)
+flingButton.TextColor3 = Color3.fromRGB(255,255,255)
+flingButton.Font = Enum.Font.Code
+flingButton.TextSize = 22
+flingButton.Parent = page1
+
+flingButton.MouseButton1Click:Connect(function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/joshclark756/joshclark756-s-scripts/refs/heads/main/fling%20player%20gui%20(unanchored%20parts).lua",true))() -- Corrected indentation
+end)
+
 ------------------------------------------------------
 -- TAB SWITCHING
 ------------------------------------------------------
