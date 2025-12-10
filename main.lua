@@ -9,8 +9,6 @@ gui.Parent = player:WaitForChild("PlayerGui")
 
 -- ******************************************************
 -- FRAME SIZE INCREASED & POSITION RECALCULATED
--- Original: UDim2.new(0, 350, 0, 250) -> Position: UDim2.new(0.5, -175, 0.5, -125)
--- New: 450x400
 -- ******************************************************
 local FRAME_WIDTH = 450
 local FRAME_HEIGHT = 400
@@ -88,14 +86,18 @@ local function showTab(tab)
 end
 showTab(page1)
 
--- Button configuration (for better layout on a larger frame)
+-- Button configuration for two-column layout
 local BUTTON_WIDTH = 200
 local BUTTON_HEIGHT = 40
-local X_POS = (FRAME_WIDTH - 10 - BUTTON_WIDTH) / 2 -- Center button horizontally within page
+local X_MARGIN = 15
+local X_POS_LEFT = X_MARGIN
+local X_POS_RIGHT = FRAME_WIDTH - 10 - X_MARGIN - BUTTON_WIDTH -- 450 - 10 (padding) - 15 (margin) - 200 (width) = 225. Let's use 235 for a cleaner fit/margin.
+X_POS_RIGHT = 235
 local Y_SPACING = 50 
+local Y_START = 20
 
 ------------------------------------------------------
--- FLY
+-- PAGE 1 - FLY, KICK, FLING (Two Columns)
 ------------------------------------------------------
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -118,9 +120,11 @@ local keys = {
 -- Base speeds
 local normalSpeed = 50
 local boostSpeed = 120
+
+-- Fly Button (Left Column, Row 1)
 local flyButton = Instance.new("TextButton")
 flyButton.Size = UDim2.new(0, BUTTON_WIDTH, 0, BUTTON_HEIGHT)
-flyButton.Position = UDim2.new(0, X_POS, 0, Y_SPACING * 0.4) -- Top of page
+flyButton.Position = UDim2.new(0, X_POS_LEFT, 0, Y_START)
 flyButton.Text = "Toggle Fly"
 flyButton.BackgroundColor3 = Color3.fromRGB(140, 0, 0)
 flyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -144,7 +148,7 @@ flyButton.MouseButton1Click:Connect(function()
         if bg then bg:Destroy() end
     end
 end)
--- Key detection
+-- Key detection (No change)
 UIS.InputBegan:Connect(function(input, gp)
     if gp then return end
     if input.KeyCode == Enum.KeyCode.W then keys.W = true end
@@ -160,7 +164,7 @@ UIS.InputEnded:Connect(function(input)
     if input.KeyCode == Enum.KeyCode.D then keys.D = false end
     if input.KeyCode == Enum.KeyCode.LeftShift then keys.Shift = false end
 end)
--- Flight movement
+-- Flight movement (No change)
 RunService.Heartbeat:Connect(function()
     if flying and bv and bg then
         local root = getRoot()
@@ -180,10 +184,10 @@ RunService.Heartbeat:Connect(function()
     end
 end)
 
--- Kick Button
+-- Kick Button (Left Column, Row 2)
 local kickButton = Instance.new("TextButton")
 kickButton.Size = UDim2.new(0,BUTTON_WIDTH,0,BUTTON_HEIGHT)
-kickButton.Position = UDim2.new(0,X_POS,0,Y_SPACING * 1.4)
+kickButton.Position = UDim2.new(0,X_POS_LEFT,0,Y_START + Y_SPACING * 1)
 kickButton.Text = "Kick"
 kickButton.BackgroundColor3 = Color3.fromRGB(140,0,0)
 kickButton.TextColor3 = Color3.fromRGB(255,255,255)
@@ -194,11 +198,11 @@ kickButton.MouseButton1Click:Connect(function()
     loadstring(game:HttpGet("https://pastebin.com/raw/ZXAZyL3q",true))()
 end)
 
--- Fling Button
+-- Fling Button (Left Column, Row 3)
 local flingButton = Instance.new("TextButton")
 flingButton.Size = UDim2.new(0,BUTTON_WIDTH,0,BUTTON_HEIGHT)
-flingButton.Position = UDim2.new(0,X_POS,0,Y_SPACING * 2.4)
-flingButton.Text = "Fling"
+flingButton.Position = UDim2.new(0,X_POS_LEFT,0,Y_START + Y_SPACING * 2)
+flingButton.Text = "Fling Player"
 flingButton.BackgroundColor3 = Color3.fromRGB(140,0,0)
 flingButton.TextColor3 = Color3.fromRGB(255,255,255)
 flingButton.Font = Enum.Font.Code
@@ -208,11 +212,13 @@ flingButton.MouseButton1Click:Connect(function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/joshclark756/joshclark756-s-scripts/refs/heads/main/fling%20player%20gui%20(unanchored%20parts).lua",true))() 
 end)
 ------------------------------------------------------
--- SKYBOX
+-- PAGE 2 - SKYBOX, DECAL SPAM, SOUND (Two Columns)
 ------------------------------------------------------
+
+-- Skybox Button (Left Column, Row 1)
 local skyboxButton = Instance.new("TextButton")
 skyboxButton.Size = UDim2.new(0, BUTTON_WIDTH, 0, BUTTON_HEIGHT)
-skyboxButton.Position = UDim2.new(0, X_POS, 0, Y_SPACING * 0.4)
+skyboxButton.Position = UDim2.new(0, X_POS_LEFT, 0, Y_START)
 skyboxButton.Text = "Change Skybox"
 skyboxButton.BackgroundColor3 = Color3.fromRGB(140, 0, 0)
 skyboxButton.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -221,7 +227,6 @@ skyboxButton.TextSize = 22
 skyboxButton.Parent = page2
 skyboxButton.MouseButton1Click:Connect(function()
     local sky = Instance.new("Sky")
-    -- The asset ID used here is an example. If you want a specific skybox, update this ID.
     local SKYBOX_ASSET_ID = "rbxassetid://116838267742664"
     sky.SkyboxBk = SKYBOX_ASSET_ID
     sky.SkyboxDn = SKYBOX_ASSET_ID
@@ -232,15 +237,13 @@ skyboxButton.MouseButton1Click:Connect(function()
     sky.Parent = game.Lighting
 end)
 
-------------------------------------------------------
--- Decal Spam (FIXED)
-------------------------------------------------------
-local ID = 116838267742664 -- Asset ID for Decal/Skybox/Particle
+-- Decal Spam Button (Left Column, Row 2)
+local ID = 116838267742664 
 local Skybox_Toggle = true
 local particle_Toggle = true
 local decalspamButton = Instance.new("TextButton")
 decalspamButton.Size = UDim2.new(0,BUTTON_WIDTH,0,BUTTON_HEIGHT)
-decalspamButton.Position = UDim2.new(0,X_POS,0,Y_SPACING * 1.4)
+decalspamButton.Position = UDim2.new(0,X_POS_LEFT,0,Y_START + Y_SPACING * 1)
 decalspamButton.Text = "Decal Spam"
 decalspamButton.BackgroundColor3 = Color3.fromRGB(140,0,0)
 decalspamButton.TextColor3 = Color3.fromRGB(255,255,255)
@@ -275,7 +278,7 @@ decalspamButton.MouseButton1Click:Connect(function()
     -- Apply Particle Emitters
     if particle_Toggle == true then
         for i,v in pairs (game.Workspace:GetDescendants()) do
-            if v:IsA("Part") and v.Parent and v.Parent ~= game.Players then -- Prevent on players
+            if v:IsA("BasePart") and v.Parent and v.Parent ~= game.Players then 
                 local particle = Instance.new("ParticleEmitter")
                 particle.Texture = "rbxassetid://" .. ID
                 particle.Parent = v
@@ -285,13 +288,11 @@ decalspamButton.MouseButton1Click:Connect(function()
     end
 end)
 
-------------------------------------------------------
--- Sound (FIXED)
-------------------------------------------------------
-local ids = {103215672097028,103215672097028,103215672097028,103215672097028,103215672097028} -- Example Sound IDs
+-- Sound Button (Left Column, Row 3)
+local ids = {103215672097028,103215672097028,103215672097028,103215672097028,103215672097028} 
 local soundButton = Instance.new("TextButton")
 soundButton.Size = UDim2.new(0,BUTTON_WIDTH,0,BUTTON_HEIGHT)
-soundButton.Position = UDim2.new(0,X_POS,0,Y_SPACING * 2.4)
+soundButton.Position = UDim2.new(0,X_POS_LEFT,0,Y_START + Y_SPACING * 2)
 soundButton.Text = "Sound"
 soundButton.BackgroundColor3 = Color3.fromRGB(140,0,0)
 soundButton.TextColor3 = Color3.fromRGB(255,255,255)
@@ -314,35 +315,29 @@ soundButton.MouseButton1Click:Connect(function()
     end)
 end)
 
+
 ------------------------------------------------------
--- FLING YOURSELF
+-- PAGE 3 - FLING YOURSELF, NOCLIP, KILL ALL (Two Columns)
 ------------------------------------------------------
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
-local flingSelfButton = Instance.new("TextButton") -- Renamed to avoid conflict
+
+-- Fling Yourself Button (Left Column, Row 1)
+local flingSelfButton = Instance.new("TextButton") 
 flingSelfButton.Size = UDim2.new(0, BUTTON_WIDTH, 0, BUTTON_HEIGHT)
-flingSelfButton.Position = UDim2.new(0, X_POS, 0, Y_SPACING * 0.4)
+flingSelfButton.Position = UDim2.new(0, X_POS_LEFT, 0, Y_START)
 flingSelfButton.Text = "Fling Yourself"
 flingSelfButton.BackgroundColor3 = Color3.fromRGB(140, 0, 0)
 flingSelfButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 flingSelfButton.Font = Enum.Font.Code
 flingSelfButton.TextSize = 22
 flingSelfButton.Parent = page3
-local function getRoot()
-    local char = player.Character or player.CharacterAdded:Wait()
-    return char:WaitForChild("HumanoidRootPart")
-end
 flingSelfButton.MouseButton1Click:Connect(function()
     local root = getRoot()
     root.Velocity = Vector3.new(0, 200, 0)
 end)
 
-------------------------------------------------------
--- NOCLIP (ADDED)
-------------------------------------------------------
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local player = Players.LocalPlayer
+-- NOCLIP (Right Column, Row 1)
 local noclip = false
 local parts = {}
 local function updateParts()
@@ -354,9 +349,7 @@ local function updateParts()
         end
     end
 end
--- Initial load
 updateParts()
--- Update parts whenever you respawn
 player.CharacterAdded:Connect(function(char)
     char:WaitForChild("HumanoidRootPart")
     task.wait(0.1)
@@ -364,7 +357,7 @@ player.CharacterAdded:Connect(function(char)
 end)
 local noclipButton = Instance.new("TextButton")
 noclipButton.Size = UDim2.new(0,BUTTON_WIDTH,0,BUTTON_HEIGHT)
-noclipButton.Position = UDim2.new(0,X_POS,0,Y_SPACING * 1.4)
+noclipButton.Position = UDim2.new(0,X_POS_RIGHT,0,Y_START) -- RIGHT COLUMN
 noclipButton.Text = "Toggle Noclip"
 noclipButton.BackgroundColor3 = Color3.fromRGB(140,0,0)
 noclipButton.TextColor3 = Color3.fromRGB(255,255,255)
@@ -391,12 +384,10 @@ RunService.Stepped:Connect(function()
     end
 end)
 
-------------------------------------------------------
--- Kill All (ADDED)
-------------------------------------------------------
+-- Kill All (Left Column, Row 2)
 local killallButton = Instance.new("TextButton")
 killallButton.Size = UDim2.new(0,BUTTON_WIDTH,0,BUTTON_HEIGHT)
-killallButton.Position = UDim2.new(0,X_POS,0,Y_SPACING * 2.4)
+killallButton.Position = UDim2.new(0,X_POS_LEFT,0,Y_START + Y_SPACING * 1)
 killallButton.Text = "Kill All"
 killallButton.BackgroundColor3 = Color3.fromRGB(140,0,0)
 killallButton.TextColor3 = Color3.fromRGB(255,255,255)
@@ -406,8 +397,6 @@ killallButton.Parent = page3
 killallButton.MouseButton1Click:Connect(function()
     for _, player in pairs(game.Players:GetPlayers()) do
      if player.Character and player.Character:FindFirstChild("Humanoid") then
-        -- This only works if the client has network ownership (which is rare for other players)
-        -- A more reliable exploit method would use a remote exploit if available.
       player.Character.Humanoid.Health = 0
      end
     end
