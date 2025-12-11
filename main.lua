@@ -101,10 +101,10 @@ local function showTab(tab)
 end
 showTab(page1)
 ------------------------------------------------------
--- TOGGLE UI
+-- KEY SYSTEM (TOGGLE UI)
 ------------------------------------------------------
 local UIS = game:GetService("UserInputService")
-local KEY_TO_TOGGLE = Enum.KeyCode.RightShift -- Or any other key you prefer
+local KEY_TO_TOGGLE = Enum.KeyCode.RightShift 
 
 local function toggleUI()
     frame.Visible = not frame.Visible
@@ -117,16 +117,64 @@ UIS.InputBegan:Connect(function(input, gameProcessedEvent)
         toggleUI()
     end
 end)
-
--- ******************************************************
--- HIDE UI INITIALLY (Optional, but good practice for a key system)
--- ******************************************************
 frame.Visible = false
 -- ******************************************************
 
 ------------------------------------------------------
--- PAGE 1 - FLY, KICK, FLING, INFINITE YIELD, GOD MODE
+-- PAGE 1 - FLY, KICK, FLING, INFINITE YIELD, GOD MODE, INVISIBILITY (URL UPDATED)
 ------------------------------------------------------
+
+-- New Variables for the Invisibility Toggle (Page 1)
+local isInvisible = false
+local CHARACTER_PARTS = {
+    -- R6 Parts
+    "Head", "Torso", "Left Arm", "Right Arm", "Left Leg", "Right Leg",
+    -- R15 Parts
+    "UpperTorso", "LowerTorso", "LeftUpperArm", "LeftLowerArm", "LeftHand", 
+    "RightUpperArm", "RightLowerArm", "RightHand", "LeftUpperLeg", 
+    "LeftLowerLeg", "LeftFoot", "RightUpperLeg", "RightLowerLeg", "RightFoot"
+}
+-- Function to set invisibility status (LocalTransparencyModifier)
+local function setInvisibility(char, isEnabled)
+    if not char then return end
+
+    local transparencyValue = isEnabled and 1 or 0
+    
+    -- 1. Target all known body parts explicitly
+    for _, partName in ipairs(CHARACTER_PARTS) do
+        local part = char:FindFirstChild(partName)
+        if part and part:IsA("BasePart") then
+            part.LocalTransparencyModifier = transparencyValue -- The most aggressive local invisibility property
+        end
+    end
+    
+    -- 2. Loop through all descendants to catch accessories, decals, etc.
+    for _, child in ipairs(char:GetDescendants()) do
+        if child:IsA("BasePart") and child.Name ~= "HumanoidRootPart" then
+            child.LocalTransparencyModifier = transparencyValue
+        elseif child:IsA("Accessory") then
+            local handle = child:FindFirstChild("Handle")
+            if handle and handle:IsA("BasePart") then
+                 handle.LocalTransparencyModifier = transparencyValue
+            end
+        end
+    end
+end
+-- Function to handle respawns
+local function onCharacterAddedForInvis(char)
+    -- Wait a moment for character parts, accessories, and clothing to fully load.
+    task.wait(0.2) 
+    
+    if isInvisible then
+        setInvisibility(char, true)
+    end
+end
+player.CharacterAdded:Connect(onCharacterAddedForInvis)
+-- Initial run check
+if player.Character then
+    onCharacterAddedForInvis(player.Character)
+end
+
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
@@ -276,6 +324,35 @@ RunService.Heartbeat:Connect(function()
         end
     end
 end)
+
+-- INVISIBLE CHARACTER BUTTON (Right Column, Row 3)
+local invisButton = Instance.new("TextButton")
+invisButton.Size = UDim2.new(0,BUTTON_WIDTH,0,BUTTON_HEIGHT)
+invisButton.Position = UDim2.new(0,X_POS_RIGHT,0,Y_START + Y_SPACING * 2) -- Right Column, Row 3
+invisButton.Text = "Toggle Invisible Character"
+invisButton.BackgroundColor3 = Color3.fromRGB(140,0,0)
+invisButton.TextColor3 = Color3.fromRGB(255,255,255)
+invisButton.Font = Enum.Font.Code
+invisButton.TextSize = 22
+invisButton.Parent = page1
+invisButton.MouseButton1Click:Connect(function()
+    isInvisible = not isInvisible
+    
+    local currentCharacter = player.Character
+    if currentCharacter then
+        task.wait(0.1) -- Wait briefly before applying
+        setInvisibility(currentCharacter, isInvisible)
+    end
+    
+    if isInvisible then
+        invisButton.Text = "Invisible Character ON"
+        invisButton.BackgroundColor3 = Color3.fromRGB(0, 140, 0) -- Green for ON
+    else
+        invisButton.Text = "Toggle Invisible Character"
+        invisButton.BackgroundColor3 = Color3.fromRGB(140, 0, 0) -- Red for OFF
+    end
+end)
+
 ------------------------------------------------------
 -- PAGE 2 - SKYBOX, DECAL SPAM, SOUND
 ------------------------------------------------------
@@ -358,8 +435,9 @@ soundButton.Position = UDim2.new(0,X_POS_LEFT,0,Y_START + Y_SPACING * 1)
 soundButton.Text = "Sound"
 soundButton.BackgroundColor3 = Color3.fromRGB(140,0,0)
 soundButton.TextColor3 = Color3.fromRGB(255,255,255)
+local SOUND_TEXT_SIZE = 22
 soundButton.Font = Enum.Font.Code
-soundButton.TextSize = 22
+soundButton.TextSize = SOUND_TEXT_SIZE
 soundButton.Parent = page2
 soundButton.MouseButton1Click:Connect(function()
     local player = game.Players.LocalPlayer
@@ -463,8 +541,9 @@ SPILButton.Position = UDim2.new(0,X_POS_LEFT,0,Y_START + Y_SPACING * 2) -- Set t
 SPILButton.Text = "SP Image Loader use bypass.vip"
 SPILButton.BackgroundColor3 = Color3.fromRGB(140,0,0)
 SPILButton.TextColor3 = Color3.fromRGB(255,255,255)
+local SPIL_TEXT_SIZE = 16 -- Smaller font for long text
 SPILButton.Font = Enum.Font.Code
-SPILButton.TextSize = 22
+SPILButton.TextSize = SPIL_TEXT_SIZE
 SPILButton.Parent = page3
 SPILButton.MouseButton1Click:Connect(function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/Artem1093z/ScriptsGo/refs/heads/main/PNG_Loader.txt"))()
