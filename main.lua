@@ -437,7 +437,7 @@ end)
 local SPILButton = Instance.new("TextButton")
 SPILButton.Size = UDim2.new(0,BUTTON_WIDTH,0,BUTTON_HEIGHT)
 SPILButton.Position = UDim2.new(0,X_POS_LEFT,0,Y_START + Y_SPACING * 2) -- Set to Row 3 (Y_SPACING * 2)
-SPILButton.Text = "SP Image Loader"
+SPILButton.Text = "SP Image Loader use bypass.vip"
 SPILButton.BackgroundColor3 = Color3.fromRGB(140,0,0)
 SPILButton.TextColor3 = Color3.fromRGB(255,255,255)
 SPILButton.Font = Enum.Font.Code
