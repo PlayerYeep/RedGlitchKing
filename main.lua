@@ -228,6 +228,21 @@ flingButton.Parent = page1
 flingButton.MouseButton1Click:Connect(function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/joshclark756/joshclark756-s-scripts/refs/heads/main/fling%20player%20gui%20(unanchored%20parts).lua",true))() 
 end)
+
+-- Infinite Yield Button (Left Column, Row 2)
+local IYButton = Instance.new("TextButton")
+IYButton.Size = UDim2.new(0,BUTTON_WIDTH,0,BUTTON_HEIGHT)
+IYButton.Position = UDim2.new(0,X_POS_LEFT,0,Y_START + Y_SPACING * 1)
+IYButton.Text = "Infinite Yield FE"
+IYButton.BackgroundColor3 = Color3.fromRGB(140,0,0)
+IYButton.TextColor3 = Color3.fromRGB(255,255,255)
+IYButton.Font = Enum.Font.Code
+IYButton.TextSize = 22
+IYButton.Parent = page1
+IYButton.MouseButton1Click:Connect(function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
+end)
+
 ------------------------------------------------------
 -- PAGE 2 - SKYBOX, DECAL SPAM, SOUND
 ------------------------------------------------------
@@ -417,6 +432,20 @@ killallButton.MouseButton1Click:Connect(function()
       player.Character.Humanoid.Health = 0
      end
     end
+end)
+
+-- SPRAY PAINT IMAGE LOADER (Left Column, Row 2)
+local SPILButton = Instance.new("TextButton")
+SPILButton.Size = UDim2.new(0,BUTTON_WIDTH,0,BUTTON_HEIGHT)
+SPILButton.Position = UDim2.new(0,X_POS_LEFT,0,Y_START + Y_SPACING * 1)
+SPILButton.Text = "SP Image Loader"
+SPILButton.BackgroundColor3 = Color3.fromRGB(140,0,0)
+SPILButton.TextColor3 = Color3.fromRGB(255,255,255)
+SPILButton.Font = Enum.Font.Code
+SPILButton.TextSize = 22
+SPILButton.Parent = page3
+SPILButton.MouseButton1Click:Connect(function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Artem1093z/ScriptsGo/refs/heads/main/PNG_Loader.txt"))()
 end)
 
 ------------------------------------------------------
