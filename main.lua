@@ -1,4 +1,8 @@
-local player = game.Players.LocalPlayer
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UIS = game:GetService("UserInputService")
+local ChatService = game:GetService("Chat") -- NEW SERVICE
+local player = Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid")
 local root = character:WaitForChild("HumanoidRootPart")
@@ -38,6 +42,40 @@ title.TextColor3 = Color3.fromRGB(255, 0, 0)
 title.Font = Enum.Font.Code
 title.TextSize = 22
 title.Parent = frame
+
+-- ******************************************************
+-- CHAT COMMANDS
+-- ******************************************************
+local COMMAND_PREFIX = "!"
+local function executeCommand(command)
+    local cmd = command:lower()
+    
+    if cmd == "fly" then
+        flyButton:Click()
+    elseif cmd == "noclip" then
+        noclipButton:Click()
+    elseif cmd == "god" then
+        godModeButton:Click()
+    elseif cmd == "invis" then
+        invisButton:Click()
+    elseif cmd == "killall" then
+        killallButton:Click()
+    elseif cmd == "esp" then
+        espButton:Click()
+    elseif cmd == "ui" then
+        frame.Visible = not frame.Visible
+        warn("UI Visibility Toggled via Chat Command.")
+    else
+        warn("Unknown command: " .. command)
+    end
+end
+
+ChatService.Chatted:Connect(function(msg)
+    if msg:sub(1, #COMMAND_PREFIX) == COMMAND_PREFIX then
+        local command = msg:sub(#COMMAND_PREFIX + 1)
+        executeCommand(command)
+    end
+end)
 -- ******************************************************
 -- NEW: EXIT BUTTON (X)
 -- ******************************************************
@@ -103,7 +141,6 @@ showTab(page1)
 ------------------------------------------------------
 -- KEY SYSTEM (TOGGLE UI)
 ------------------------------------------------------
-local UIS = game:GetService("UserInputService")
 local KEY_TO_TOGGLE = Enum.KeyCode.RightShift 
 
 local function toggleUI()
@@ -112,7 +149,6 @@ end
 
 -- Key listener for the toggle key
 UIS.InputBegan:Connect(function(input, gameProcessedEvent)
-    -- Ensure the key press is not handled by the game (e.g., if a text box is focused)
     if not gameProcessedEvent and input.KeyCode == KEY_TO_TOGGLE then
         toggleUI()
     end
@@ -121,63 +157,8 @@ frame.Visible = false
 -- ******************************************************
 
 ------------------------------------------------------
--- PAGE 1 - FLY, KICK, FLING, INFINITE YIELD, GOD MODE, INVISIBILITY (URL UPDATED)
+-- PAGE 1 - FLY, KICK, FLING, INFINITE YIELD, GOD MODE, INVISIBILITY
 ------------------------------------------------------
-
--- New Variables for the Invisibility Toggle (Page 1)
-local isInvisible = false
-local CHARACTER_PARTS = {
-    -- R6 Parts
-    "Head", "Torso", "Left Arm", "Right Arm", "Left Leg", "Right Leg",
-    -- R15 Parts
-    "UpperTorso", "LowerTorso", "LeftUpperArm", "LeftLowerArm", "LeftHand", 
-    "RightUpperArm", "RightLowerArm", "RightHand", "LeftUpperLeg", 
-    "LeftLowerLeg", "LeftFoot", "RightUpperLeg", "RightLowerLeg", "RightFoot"
-}
--- Function to set invisibility status (LocalTransparencyModifier)
-local function setInvisibility(char, isEnabled)
-    if not char then return end
-
-    local transparencyValue = isEnabled and 1 or 0
-    
-    -- 1. Target all known body parts explicitly
-    for _, partName in ipairs(CHARACTER_PARTS) do
-        local part = char:FindFirstChild(partName)
-        if part and part:IsA("BasePart") then
-            part.LocalTransparencyModifier = transparencyValue -- The most aggressive local invisibility property
-        end
-    end
-    
-    -- 2. Loop through all descendants to catch accessories, decals, etc.
-    for _, child in ipairs(char:GetDescendants()) do
-        if child:IsA("BasePart") and child.Name ~= "HumanoidRootPart" then
-            child.LocalTransparencyModifier = transparencyValue
-        elseif child:IsA("Accessory") then
-            local handle = child:FindFirstChild("Handle")
-            if handle and handle:IsA("BasePart") then
-                 handle.LocalTransparencyModifier = transparencyValue
-            end
-        end
-    end
-end
--- Function to handle respawns
-local function onCharacterAddedForInvis(char)
-    -- Wait a moment for character parts, accessories, and clothing to fully load.
-    task.wait(0.2) 
-    
-    if isInvisible then
-        setInvisibility(char, true)
-    end
-end
-player.CharacterAdded:Connect(onCharacterAddedForInvis)
--- Initial run check
-if player.Character then
-    onCharacterAddedForInvis(player.Character)
-end
-
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local player = Players.LocalPlayer
 local function getRoot()
     local char = player.Character or player.CharacterAdded:Wait()
     return char:WaitForChild("HumanoidRootPart")
@@ -195,6 +176,49 @@ local keys = {
 -- Base speeds
 local normalSpeed = 50
 local boostSpeed = 120
+
+-- INVISIBILITY VARIABLES AND FUNCTIONS (From last turn, integrated directly)
+local isInvisible = false
+local CHARACTER_PARTS = {
+    "Head", "Torso", "Left Arm", "Right Arm", "Left Leg", "Right Leg",
+    "UpperTorso", "LowerTorso", "LeftUpperArm", "LeftLowerArm", "LeftHand", 
+    "RightUpperArm", "RightLowerArm", "RightHand", "LeftUpperLeg", 
+    "LeftLowerLeg", "LeftFoot", "RightUpperLeg", "RightLowerLeg", "RightFoot"
+}
+local function setInvisibility(char, isEnabled)
+    if not char then return end
+    local transparencyValue = isEnabled and 1 or 0
+    
+    for _, partName in ipairs(CHARACTER_PARTS) do
+        local part = char:FindFirstChild(partName)
+        if part and part:IsA("BasePart") then
+            part.LocalTransparencyModifier = transparencyValue
+        end
+    end
+    
+    for _, child in ipairs(char:GetDescendants()) do
+        if child:IsA("BasePart") and child.Name ~= "HumanoidRootPart" then
+            child.LocalTransparencyModifier = transparencyValue
+        elseif child:IsA("Accessory") then
+            local handle = child:FindFirstChild("Handle")
+            if handle and handle:IsA("BasePart") then
+                 handle.LocalTransparencyModifier = transparencyValue
+            end
+        end
+    end
+end
+local function onCharacterAddedForInvis(char)
+    task.wait(0.2) 
+    if isInvisible then
+        setInvisibility(char, true)
+    end
+end
+player.CharacterAdded:Connect(onCharacterAddedForInvis)
+if player.Character then
+    onCharacterAddedForInvis(player.Character)
+end
+-- END INVISIBILITY FUNCTIONS
+
 -- Fly Button (Left Column, Row 1)
 local flyButton = Instance.new("TextButton")
 flyButton.Size = UDim2.new(0, BUTTON_WIDTH, 0, BUTTON_HEIGHT)
@@ -209,6 +233,7 @@ flyButton.MouseButton1Click:Connect(function()
     flying = not flying
     local root = getRoot()
     if flying then
+        flyButton.BackgroundColor3 = Color3.fromRGB(0, 140, 0)
         bv = Instance.new("BodyVelocity")
         bv.MaxForce = Vector3.new(1e6, 1e6, 1e6)
         bv.Velocity = Vector3.zero
@@ -218,13 +243,14 @@ flyButton.MouseButton1Click:Connect(function()
         bg.CFrame = workspace.CurrentCamera.CFrame
         bg.Parent = root
     else
+        flyButton.BackgroundColor3 = Color3.fromRGB(140, 0, 0)
         if bv then bv:Destroy() end
         if bg then bg:Destroy() end
     end
 end)
 -- Key detection (No change)
 UIS.InputBegan:Connect(function(input, gp)
-    if gp or not flying then return end -- Only process flight keys if not game processed and fly is enabled
+    if gp or not flying then return end 
     if input.KeyCode == Enum.KeyCode.W then keys.W = true end
     if input.KeyCode == Enum.KeyCode.A then keys.A = true end
     if input.KeyCode == Enum.KeyCode.S then keys.S = true end
@@ -232,7 +258,6 @@ UIS.InputBegan:Connect(function(input, gp)
     if input.KeyCode == Enum.KeyCode.LeftShift then keys.Shift = true end
 end)
 UIS.InputEnded:Connect(function(input)
-    -- Don't check 'gp' here, as we want to update key states even if game processed
     if input.KeyCode == Enum.KeyCode.W then keys.W = false end
     if input.KeyCode == Enum.KeyCode.A then keys.A = false end
     if input.KeyCode == Enum.KeyCode.S then keys.S = false end
@@ -242,7 +267,6 @@ end)
 -- Flight movement (No change)
 RunService.Heartbeat:Connect(function()
     if flying and bv and bg then
-        local root = getRoot()
         local cam = workspace.CurrentCamera.CFrame
         bg.CFrame = cam
         local moveDir = Vector3.zero
@@ -254,7 +278,7 @@ RunService.Heartbeat:Connect(function()
         if moveDir.Magnitude > 0 then
             bv.Velocity = moveDir.Unit * speed
         else
-            bv.Velocity = Vector3.zero -- Hover in place
+            bv.Velocity = Vector3.zero
         end
     end
 end)
@@ -287,7 +311,7 @@ end)
 -- Infinite Yield Button (Right Column, Row 2)
 local IYButton = Instance.new("TextButton")
 IYButton.Size = UDim2.new(0,BUTTON_WIDTH,0,BUTTON_HEIGHT)
-IYButton.Position = UDim2.new(0,X_POS_RIGHT,0,Y_START + Y_SPACING * 1) -- Set to right column
+IYButton.Position = UDim2.new(0,X_POS_RIGHT,0,Y_START + Y_SPACING * 1) 
 IYButton.Text = "Infinite Yield FE"
 IYButton.BackgroundColor3 = Color3.fromRGB(140,0,0)
 IYButton.TextColor3 = Color3.fromRGB(255,255,255)
@@ -301,7 +325,7 @@ end)
 local godModeEnabled = false
 local godModeButton = Instance.new("TextButton")
 godModeButton.Size = UDim2.new(0,BUTTON_WIDTH,0,BUTTON_HEIGHT)
-godModeButton.Position = UDim2.new(0,X_POS_LEFT,0,Y_START + Y_SPACING * 2) -- Left Column, Row 3
+godModeButton.Position = UDim2.new(0,X_POS_LEFT,0,Y_START + Y_SPACING * 2) 
 godModeButton.Text = "Toggle God Mode"
 godModeButton.BackgroundColor3 = Color3.fromRGB(140,0,0)
 godModeButton.TextColor3 = Color3.fromRGB(255,255,255)
@@ -312,8 +336,10 @@ godModeButton.MouseButton1Click:Connect(function()
     godModeEnabled = not godModeEnabled
     if godModeEnabled then
         godModeButton.Text = "God Mode ON"
+        godModeButton.BackgroundColor3 = Color3.fromRGB(0, 140, 0)
     else
         godModeButton.Text = "Toggle God Mode"
+        godModeButton.BackgroundColor3 = Color3.fromRGB(140, 0, 0)
     end
 end)
 -- God Mode Heartbeat Loop (No change)
@@ -340,16 +366,16 @@ invisButton.MouseButton1Click:Connect(function()
     
     local currentCharacter = player.Character
     if currentCharacter then
-        task.wait(0.1) -- Wait briefly before applying
+        task.wait(0.1)
         setInvisibility(currentCharacter, isInvisible)
     end
     
     if isInvisible then
         invisButton.Text = "Invisible Character ON"
-        invisButton.BackgroundColor3 = Color3.fromRGB(0, 140, 0) -- Green for ON
+        invisButton.BackgroundColor3 = Color3.fromRGB(0, 140, 0)
     else
         invisButton.Text = "Toggle Invisible Character"
-        invisButton.BackgroundColor3 = Color3.fromRGB(140, 0, 0) -- Red for OFF
+        invisButton.BackgroundColor3 = Color3.fromRGB(140, 0, 0)
     end
 end)
 
@@ -391,7 +417,6 @@ decalspamButton.Font = Enum.Font.Code
 decalspamButton.TextSize = 22
 decalspamButton.Parent = page2
 decalspamButton.MouseButton1Click:Connect(function()
-    -- Apply decal to all parts
     for i,v in pairs (game.Workspace:GetDescendants()) do
         if v:IsA("Part") then
             for _,face in ipairs(Enum.NormalId:GetEnumItems()) do
@@ -403,7 +428,6 @@ decalspamButton.MouseButton1Click:Connect(function()
         end
     end
     
-    -- Apply Skybox
     if Skybox_Toggle == true then
         local sky = Instance.new("Sky")
         sky.Parent = game.Lighting
@@ -415,7 +439,6 @@ decalspamButton.MouseButton1Click:Connect(function()
         sky.SkyboxUp = "rbxassetid://" .. ID
     end
     
-    -- Apply Particle Emitters
     if particle_Toggle == true then
         for i,v in pairs (game.Workspace:GetDescendants()) do
             if v:IsA("BasePart") and v.Parent and v.Parent ~= game.Players then 
@@ -502,8 +525,10 @@ noclipButton.MouseButton1Click:Connect(function()
     noclip = not noclip
     if noclip then
         noclipButton.Text = "Noclip ON"
+        noclipButton.BackgroundColor3 = Color3.fromRGB(0, 140, 0)
     else
         noclipButton.Text = "Toggle Noclip"
+        noclipButton.BackgroundColor3 = Color3.fromRGB(140, 0, 0)
     end
 end)
 RunService.Stepped:Connect(function()
@@ -537,11 +562,11 @@ end)
 -- SPRAY PAINT IMAGE LOADER (Left Column, Row 3)
 local SPILButton = Instance.new("TextButton")
 SPILButton.Size = UDim2.new(0,BUTTON_WIDTH,0,BUTTON_HEIGHT)
-SPILButton.Position = UDim2.new(0,X_POS_LEFT,0,Y_START + Y_SPACING * 2) -- Set to Row 3 (Y_SPACING * 2)
+SPILButton.Position = UDim2.new(0,X_POS_LEFT,0,Y_START + Y_SPACING * 2) 
 SPILButton.Text = "SP Image Loader use bypass.vip"
 SPILButton.BackgroundColor3 = Color3.fromRGB(140,0,0)
 SPILButton.TextColor3 = Color3.fromRGB(255,255,255)
-local SPIL_TEXT_SIZE = 16 -- Smaller font for long text
+local SPIL_TEXT_SIZE = 16
 SPILButton.Font = Enum.Font.Code
 SPILButton.TextSize = SPIL_TEXT_SIZE
 SPILButton.Parent = page3
@@ -583,7 +608,7 @@ walkSpeedLabel.Parent = page4
 -- Walk Speed Slider (Right Column, Row 1 - Slider)
 local walkSpeedSlider = Instance.new("TextButton")
 walkSpeedSlider.Size = UDim2.new(0, BUTTON_WIDTH, 0, 20)
-walkSpeedSlider.Position = UDim2.new(0, X_POS_RIGHT, 0, WS_Y_POS + 25) -- 5 pixels below the label
+walkSpeedSlider.Position = UDim2.new(0, X_POS_RIGHT, 0, WS_Y_POS + 25) 
 walkSpeedSlider.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 walkSpeedSlider.BorderSizePixel = 1
 walkSpeedSlider.BorderColor3 = Color3.fromRGB(255, 0, 0)
@@ -608,9 +633,8 @@ local MAX_SPEED = 100
 local currentSpeed = MIN_SPEED
 -- Function to update the character's speed
 local function updateWalkSpeed(speed)
-    speed = math.max(MIN_SPEED, math.min(MAX_SPEED, speed)) -- Clamp the speed
+    speed = math.max(MIN_SPEED, math.min(MAX_SPEED, speed)) 
     currentSpeed = speed
-    -- Wait for character if it hasn't loaded yet
     local currentHumanoid = player.Character and player.Character:FindFirstChild("Humanoid")
     if currentHumanoid then
         currentHumanoid.WalkSpeed = speed
@@ -625,7 +649,6 @@ local function getSpeedFromX(x)
 end
 -- Function to convert speed value to handle position
 local function getXFromSpeed(speed)
-    -- This function is no longer strictly needed for initialization, but kept for logic clarity
     local ratio = (speed - MIN_SPEED) / (MAX_SPEED - MIN_SPEED)
     return UDim2.new(ratio, -WSSliderHandle.Size.X.Offset / 2, 0, 0)
 end
@@ -642,14 +665,13 @@ UIS.InputChanged:Connect(function(input)
         local newSpeed = getSpeedFromX(input.Position.X)
         updateWalkSpeed(newSpeed)
         
-        -- Update UI elements based on the new speed
         local xRatio = (newSpeed - MIN_SPEED) / (MAX_SPEED - MIN_SPEED)
         WSSliderBar.Size = UDim2.new(xRatio, 0, 1, 0)
         WSSliderHandle.Position = UDim2.new(xRatio, -WSSliderHandle.Size.X.Offset / 2, 0, 0)
     end
 end)
 UIS.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType.Touch then
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
         WS_dragging = false
     end
 end)
@@ -658,7 +680,7 @@ updateWalkSpeed(MIN_SPEED)
 WSSliderBar.Size = UDim2.new(0, 0, 1, 0)
 WSSliderHandle.Position = getXFromSpeed(MIN_SPEED)
 --- ⬆️ JUMP POWER SLIDER ---
-local JP_Y_POS = WS_Y_POS + Y_SPACING -- Below the Walk Speed Slider
+local JP_Y_POS = WS_Y_POS + Y_SPACING 
 -- Jump Power Label (Right Column, Row 2 - Title)
 local jumpPowerLabel = Instance.new("TextLabel")
 jumpPowerLabel.Size = UDim2.new(0, BUTTON_WIDTH, 0, 20)
@@ -672,7 +694,7 @@ jumpPowerLabel.Parent = page4
 -- Jump Power Slider (Right Column, Row 2 - Slider)
 local jumpPowerSlider = Instance.new("TextButton")
 jumpPowerSlider.Size = UDim2.new(0, BUTTON_WIDTH, 0, 20)
-jumpPowerSlider.Position = UDim2.new(0, X_POS_RIGHT, 0, JP_Y_POS + 25) -- 5 pixels below the label
+jumpPowerSlider.Position = UDim2.new(0, X_POS_RIGHT, 0, JP_Y_POS + 25) 
 jumpPowerSlider.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 jumpPowerSlider.BorderSizePixel = 1
 jumpPowerSlider.BorderColor3 = Color3.fromRGB(255, 0, 0)
@@ -697,7 +719,7 @@ local MAX_JUMP = 150
 local currentJump = 50
 -- Function to update the character's jump power
 local function updateJumpPower(power)
-    power = math.max(MIN_JUMP, math.min(MAX_JUMP, power)) -- Clamp the power
+    power = math.max(MIN_JUMP, math.min(MAX_JUMP, power))
     currentJump = power
     local currentHumanoid = player.Character and player.Character:FindFirstChild("Humanoid")
     if currentHumanoid then
@@ -724,7 +746,6 @@ UIS.InputChanged:Connect(function(input)
         local newPower = getJumpPowerFromX(input.Position.X)
         updateJumpPower(newPower)
         
-        -- Update UI elements based on the new power
         local xRatio = (newPower - MIN_JUMP) / (MAX_JUMP - MIN_JUMP)
         JPSliderBar.Size = UDim2.new(xRatio, 0, 1, 0)
         JPSliderHandle.Position = UDim2.new(xRatio, -JPSliderHandle.Size.X.Offset / 2, 0, 0)
